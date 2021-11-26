@@ -31,6 +31,12 @@ const HomeScreen = () => {
       <TouchableOpacity onPress={viewProfile} style={styles.button}>
         <Text style={styles.buttonText}>My Profile</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.button}>
+        <Text style={styles.buttonText}>Add a ride</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button}>
+        <Text style={styles.buttonText}>Find a ride</Text>
+      </TouchableOpacity>
       <TouchableOpacity onPress={handleSignOut} style={styles.button}>
         <Text style={styles.buttonText}>Sign out</Text>
       </TouchableOpacity>

@@ -27,25 +27,25 @@ const LoginScreen = () => {
         navigation.replace("Home");
       }
     });
+
     return unsubscribe;
   }, []);
 
   const handleSignUp = async () => {
     try {
-      const user = await createUserWithEmailAndPassword(
+      const response = await createUserWithEmailAndPassword(
         auth,
         email.trim(),
         password
       );
 
       const userInfo = {
-        firstName: "whatever",
-        lastName: "whatever",
+        email: email.trim(),
         stars: 0,
       };
 
-      //create an instance at the "users" database , email as key
-      await setDoc(doc(datab, "users", email.trim()), userInfo);
+      //create an instance at the "users" database , uid as key
+      await setDoc(doc(datab, "users", response.user.uid), userInfo);
     } catch (error) {
       alert(error.message);
     }

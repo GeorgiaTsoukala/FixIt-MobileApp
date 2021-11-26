@@ -9,42 +9,106 @@ import {
   Button,
 } from "react-native";
 import { auth, datab, storage } from "../firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { updateDoc, doc } from "firebase/firestore";
-import { ref, uploadBytes } from "firebase/storage";
+import { updateDoc, doc, getDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as ImagePicker from "expo-image-picker";
+import { useEffect } from "react";
 
 const ProfileScreen = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [currentEmail, setCurrentEmail] = useState("");
   const [profileImage, setProfileImage] = useState(null);
+  const [isProfileNetworkImage, setProfileNetworkImage] = useState(false);
   const [carImage, setCarImage] = useState(null);
+  const [isCarNetworkImage, setCarNetworkImage] = useState(false);
+
+  useEffect(() => {
+    updateScreen();
+  }, []);
+
+  const updateScreen = async () => {
+    const response = await getDoc(doc(datab, "users", auth.currentUser.uid));
+    if (response?.data()) {
+      //load profile image
+      if (response?.data()?.profileImage) {
+        const refStorage = ref(storage, response.data().profileImage);
+        getDownloadURL(refStorage).then((res) => {
+          setProfileImage(res);
+          setProfileNetworkImage(true);
+        });
+      }
+      //load car image
+      if (response?.data()?.carImage) {
+        const refStorage = ref(storage, response.data().carImage);
+        getDownloadURL(refStorage).then((res) => {
+          setCarImage(res);
+          setCarNetworkImage(true);
+        });
+      }
+      //load first name/last name
+      if (response?.data()?.firstName) {
+        setFirstName(response.data().firstName);
+      }
+      if (response?.data()?.lastName) {
+        setLastName(response.data().lastName);
+      }
+    }
+  };
+
+  const getImageBlob = (uri) => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function (e) {
+        console.log(e);
+        reject(new TypeError("Network request failed"));
+      };
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+      xhr.send(null);
+    });
+  };
+
+  const saveImage = async (fullImagePath, filename) => {
+    const storageRef = ref(storage, filename);
+    const blob = await getImageBlob(fullImagePath);
+    await uploadBytes(storageRef, blob);
+  };
 
   const handleSave = async () => {
     try {
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          setCurrentEmail(user.email);
-        }
-      });
-
-      //save images to storage
-      //let filename = profileImage.substring(profileImage.lastIndexOf("/") + 1);
-      //const storageRef = ref(storage, filename);
-
-      //await uploadBytes(storageRef, profileImage);
-
-      //update the info of current user
-      const updatedFields = {
+      let updatedFields = {
         firstName: firstName,
         lastName: lastName,
       };
 
-      await updateDoc(doc(datab, "users", currentEmail), updatedFields);
+      //save profile image to storage
+      if (profileImage && !isProfileNetworkImage) {
+        let filename = profileImage.substring(
+          profileImage.lastIndexOf("/") + 1
+        );
+        await saveImage(profileImage, filename);
+        updatedFields = {
+          ...updatedFields,
+          profileImage: filename,
+        };
+      }
+      //save car image to storage
+      if (carImage && !isCarNetworkImage) {
+        let filename = carImage.substring(carImage.lastIndexOf("/") + 1);
+        await saveImage(carImage, filename);
+        updatedFields = {
+          ...updatedFields,
+          carImage: filename,
+        };
+      }
+
+      //update the users database
+      await updateDoc(doc(datab, "users", auth.currentUser.uid), updatedFields);
     } catch (error) {
       alert(error.message);
-      console.log("at save");
     }
   };
 
@@ -56,7 +120,7 @@ const ProfileScreen = () => {
 
     if (!result.cancelled) {
       setProfileImage(result.uri);
-      console.log(result.uri);
+      setProfileNetworkImage(false);
     }
   };
 
@@ -68,6 +132,7 @@ const ProfileScreen = () => {
 
     if (!result.cancelled) {
       setCarImage(result.uri);
+      setCarNetworkImage(false);
     }
   };
 
