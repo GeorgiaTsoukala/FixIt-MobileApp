@@ -17,6 +17,14 @@ const HomeScreen = () => {
     }
   };
 
+  const addRide = async () => {
+    try {
+      navigation.navigate("Add a new route");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   const viewProfile = async () => {
     try {
       navigation.navigate("Profile");
@@ -31,8 +39,8 @@ const HomeScreen = () => {
       <TouchableOpacity onPress={viewProfile} style={styles.button}>
         <Text style={styles.buttonText}>My Profile</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Add a ride</Text>
+      <TouchableOpacity onPress={addRide} style={styles.button}>
+        <Text style={styles.buttonText}>Add a route</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Find a ride</Text>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -12,7 +12,6 @@ import { auth, datab, storage } from "../firebase";
 import { updateDoc, doc, getDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as ImagePicker from "expo-image-picker";
-import { useEffect } from "react";
 
 const ProfileScreen = () => {
   const [firstName, setFirstName] = useState("");
