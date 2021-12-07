@@ -5,13 +5,54 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Button,
+  Platform,
 } from "react-native";
 import { addDoc, collection, doc } from "firebase/firestore";
 import { datab, auth } from "../firebase";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const addRouteScreen = () => {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [date, setDate] = useState(new Date());
+  const [formatedDate, setFormatedDate] = useState("Date");
+  const [formatedTime, setFormatedTime] = useState("Time");
+  const [mode, setMode] = useState("date");
+  const [show, setShow] = useState(false);
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === "ios");
+    setDate(currentDate);
+
+    let tempDate = new Date(currentDate);
+    if (mode == "date") {
+      setFormatedDate(
+        tempDate.getMonth() +
+          1 +
+          "/" +
+          tempDate.getDate() +
+          "/" +
+          tempDate.getFullYear()
+      );
+    } else {
+      setFormatedTime(tempDate.getHours() + ":" + tempDate.getMinutes());
+    }
+  };
+
+  const showMode = (currentMode) => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
+  const showDatepicker = () => {
+    showMode("date");
+  };
+
+  const showTimepicker = () => {
+    showMode("time");
+  };
 
   const handleSave = async () => {
     try {
@@ -19,6 +60,7 @@ const addRouteScreen = () => {
         origin: origin,
         destination: destination,
         driver: doc(datab, "users", auth.currentUser.uid),
+        date: date,
       };
 
       //add to the routes database
@@ -26,10 +68,29 @@ const addRouteScreen = () => {
     } catch (error) {
       alert(error.message);
     }
+
+    console.log(formatedDate + "\n" + formatedTime);
   };
 
   return (
     <View style={styles.container} behavior="padding">
+      <View>
+        <Button onPress={showDatepicker} title={formatedDate} />
+      </View>
+      <View>
+        <Button onPress={showTimepicker} title={formatedTime} />
+      </View>
+      {show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={date}
+          mode={mode}
+          is24Hour={true}
+          minimumDate={new Date()}
+          display="default"
+          onChange={onChange}
+        />
+      )}
       <View style={styles.inputContainer}>
         <TextInput
           placeholder="From"
