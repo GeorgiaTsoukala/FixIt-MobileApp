@@ -8,11 +8,11 @@ import {
   Button,
   Platform,
 } from "react-native";
-import { addDoc, collection, doc } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { datab, auth } from "../firebase";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
-const AddRouteScreen = () => {
+const FindRideScreen = () => {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [date, setDate] = useState(new Date());
@@ -20,6 +20,7 @@ const AddRouteScreen = () => {
   const [formatedTime, setFormatedTime] = useState("Time");
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
+  const [routes, setRoutes] = useState([]);
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -54,17 +55,32 @@ const AddRouteScreen = () => {
     showMode("time");
   };
 
-  const handleSubmit = async () => {
-    try {
-      let updatedFields = {
-        origin: origin.trim(),
-        destination: destination.trim(),
-        driver: doc(datab, "users", auth.currentUser.uid),
-        date: date,
-      };
+  const showRoutes = () => {
+    console.log("showRoutes");
+    routes.map((route) => {
+      console.log(route.date);
+    });
+  };
 
-      //add to the routes database
-      await addDoc(collection(datab, "routes"), updatedFields);
+  const handleSearch = async () => {
+    try {
+      const q = query(
+        collection(datab, "routes"),
+        where("origin", "==", origin.trim()),
+        where("destination", "==", destination.trim())
+      );
+      console.log(origin);
+      console.log(destination);
+
+      const querySnapshot = await getDocs(q);
+      const items = [];
+      querySnapshot.forEach((doc) => {
+        items.push(doc.data());
+        console.log("found");
+      });
+
+      setRoutes(items);
+      showRoutes();
     } catch (error) {
       alert(error.message);
     }
@@ -105,17 +121,16 @@ const AddRouteScreen = () => {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          onPress={handleSubmit}
+          onPress={handleSearch}
           style={[styles.button, styles.buttonOutline]}
         >
-          <Text style={styles.buttonOutlineText}>Submit</Text>
+          <Text style={styles.buttonOutlineText}>Search</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
-
-export default AddRouteScreen;
+export default FindRideScreen;
 
 const styles = StyleSheet.create({
   container: {

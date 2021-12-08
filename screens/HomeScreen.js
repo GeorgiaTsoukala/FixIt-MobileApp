@@ -7,17 +7,15 @@ import { auth } from "../firebase";
 const HomeScreen = () => {
   const navigation = useNavigation();
 
-  const handleSignOut = async () => {
+  const viewProfile = async () => {
     try {
-      await signOut(auth).then(() => {
-        navigation.replace("Login");
-      });
+      navigation.navigate("Profile");
     } catch (error) {
       alert(error.message);
     }
   };
 
-  const addRide = async () => {
+  const addRoute = async () => {
     try {
       navigation.navigate("Add a new route");
     } catch (error) {
@@ -25,9 +23,19 @@ const HomeScreen = () => {
     }
   };
 
-  const viewProfile = async () => {
+  const findRide = async () => {
     try {
-      navigation.navigate("Profile");
+      navigation.navigate("Find a ride");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth).then(() => {
+        navigation.replace("Login");
+      });
     } catch (error) {
       alert(error.message);
     }
@@ -39,10 +47,10 @@ const HomeScreen = () => {
       <TouchableOpacity onPress={viewProfile} style={styles.button}>
         <Text style={styles.buttonText}>My Profile</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={addRide} style={styles.button}>
+      <TouchableOpacity onPress={addRoute} style={styles.button}>
         <Text style={styles.buttonText}>Add a route</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity onPress={findRide} style={styles.button}>
         <Text style={styles.buttonText}>Find a ride</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={handleSignOut} style={styles.button}>
