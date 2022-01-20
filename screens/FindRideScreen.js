@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Keyboard } from "react-native";
 import {
   StyleSheet,
   Text,
@@ -7,10 +8,13 @@ import {
   TouchableOpacity,
   Button,
   Platform,
+  FlatList,
+  Modal,
 } from "react-native";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, getDoc } from "firebase/firestore";
 import { datab, auth } from "../firebase";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const FindRideScreen = () => {
   const [origin, setOrigin] = useState("");
@@ -21,6 +25,7 @@ const FindRideScreen = () => {
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
   const [routes, setRoutes] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -55,39 +60,108 @@ const FindRideScreen = () => {
     showMode("time");
   };
 
-  const showRoutes = () => {
-    console.log("showRoutes");
-    routes.map((route) => {
-      console.log(route.date);
-    });
-  };
-
   const handleSearch = async () => {
     try {
+      Keyboard.dismiss();
+      setRoutes([]);
       const q = query(
         collection(datab, "routes"),
         where("origin", "==", origin.trim()),
         where("destination", "==", destination.trim())
       );
-      console.log(origin);
-      console.log(destination);
 
       const querySnapshot = await getDocs(q);
       const items = [];
-      querySnapshot.forEach((doc) => {
-        items.push(doc.data());
-        console.log("found");
+      querySnapshot.forEach(async (doc) => {
+        let rideData = {
+          id: doc.id,
+          destination: doc.data().destination,
+          origin: doc.data().origin,
+          date: doc.data().date.toDate(),
+        };
+        try {
+          const driver = await (await getDoc(doc.data().driver)).data();
+          rideData = { ...rideData, driver };
+        } catch (err) {
+          console.log("Error", err);
+        }
+        console.log("Found");
+        setRoutes((r) => {
+          return [...r, rideData];
+        });
       });
-
-      setRoutes(items);
-      showRoutes();
     } catch (error) {
       alert(error.message);
     }
   };
 
+  const FlatListItem = ({ value }) => (
+    <View
+      style={{
+        backgroundColor: "#ddd",
+        borderRadius: 18,
+        elevation: 4,
+        marginTop: 10,
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        flexDirection: "row",
+      }}
+    >
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Text>Driver</Text>
+        <Text>
+          {value.driver
+            ? value?.driver?.firstName + " " + value?.driver?.lastName
+            : "No Data"}
+        </Text>
+      </View>
+      <View
+        style={{
+          borderRightWidth: 3,
+          borderRightColor: "#bbb",
+          marginHorizontal: 10,
+        }}
+      ></View>
+      <View style={{ display: "flex", flexDirection: "column" }}>
+        <Text>
+          {value.date.toDateString() +
+            " " +
+            value.date.toLocaleTimeString("el-GR")}
+        </Text>
+        <Text>{value.origin + " - " + value.destination}</Text>
+      </View>
+    </View>
+  );
+
+  const EmptyList = () => (
+    <View>
+      <Text>No data Available</Text>
+    </View>
+  );
+
+  const FlatListItemPressed = (id) => {
+    console.log("pressHandler", id);
+    setModalOpen(true);
+  };
+
   return (
     <View style={styles.container} behavior="padding">
+      <Modal transparent visible={modalOpen}>
+        <View style={styles.modalContainer}>
+          <MaterialIcons
+            name="close"
+            size={24}
+            onPress={() => setModalOpen(false)}
+          />
+          <Text>MOOOODAL</Text>
+        </View>
+      </Modal>
       <View>
         <Button onPress={showDatepicker} title={formatedDate} />
       </View>
@@ -126,6 +200,20 @@ const FindRideScreen = () => {
         >
           <Text style={styles.buttonOutlineText}>Search</Text>
         </TouchableOpacity>
+      </View>
+      <View style={{ marginTop: 20 }}>
+        <FlatList
+          ListEmptyComponent={<EmptyList />}
+          data={routes}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => FlatListItemPressed(item.id)}
+            >
+              <FlatListItem value={item} keyExtractor={(item) => item.id} />
+            </TouchableOpacity>
+          )}
+        />
       </View>
     </View>
   );
@@ -171,5 +259,17 @@ const styles = StyleSheet.create({
     color: "indianred",
     fontWeight: "700",
     fontSize: 15,
+  },
+  modalContainer: {
+    flex: 1,
+    marginTop: 90,
+    marginBottom: 90,
+    alignItems: "center",
+    width: "80%",
+    backgroundColor: "white",
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    borderRadius: 20,
+    elevation: 20,
   },
 });
