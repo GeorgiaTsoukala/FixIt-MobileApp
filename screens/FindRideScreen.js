@@ -6,15 +6,17 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Image,
   Button,
   Platform,
   FlatList,
   Modal,
 } from "react-native";
 import { collection, query, where, getDocs, getDoc } from "firebase/firestore";
-import { datab, auth } from "../firebase";
+import { datab, storage } from "../firebase";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { MaterialIcons } from "@expo/vector-icons";
+import { ref, getDownloadURL } from "firebase/storage";
 
 const FindRideScreen = () => {
   const [origin, setOrigin] = useState("");
@@ -26,6 +28,8 @@ const FindRideScreen = () => {
   const [show, setShow] = useState(false);
   const [routes, setRoutes] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+  const [carImage, setCarImage] = useState(null);
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -145,8 +149,24 @@ const FindRideScreen = () => {
     </View>
   );
 
-  const FlatListItemPressed = (id) => {
-    console.log("pressHandler", id);
+  const FlatListItemPressed = (driverData) => {
+    console.log("pressHandler", driverData.firstName);
+    //load profile image
+    if (driverData?.profileImage) {
+      console.log("driverData?.profileImage");
+      const refStorage = ref(storage, driverData.profileImage);
+      getDownloadURL(refStorage).then((res) => {
+        setProfileImage(res);
+      });
+    }
+    //load car image
+    if (driverData?.carImage) {
+      const refStorage = ref(storage, driverData.carImage);
+      getDownloadURL(refStorage).then((res) => {
+        setCarImage(res);
+      });
+    }
+    //open pop-up window
     setModalOpen(true);
   };
 
@@ -157,9 +177,23 @@ const FindRideScreen = () => {
           <MaterialIcons
             name="close"
             size={24}
-            onPress={() => setModalOpen(false)}
+            onPress={() => (
+              setModalOpen(false), setProfileImage(null), setCarImage(null)
+            )}
           />
-          <Text>MOOOODAL</Text>
+          <Text>Driver's info</Text>
+          {profileImage && (
+            <Image
+              source={{ uri: profileImage }}
+              style={{ width: 200, height: 200 }}
+            />
+          )}
+          {carImage && (
+            <Image
+              source={{ uri: carImage }}
+              style={{ width: 200, height: 200 }}
+            />
+          )}
         </View>
       </Modal>
       <View>
@@ -208,7 +242,7 @@ const FindRideScreen = () => {
           renderItem={({ item }) => (
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => FlatListItemPressed(item.id)}
+              onPress={() => FlatListItemPressed(item.driver)}
             >
               <FlatListItem value={item} keyExtractor={(item) => item.id} />
             </TouchableOpacity>
