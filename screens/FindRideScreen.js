@@ -89,7 +89,7 @@ const FindRideScreen = () => {
         } catch (err) {
           console.log("Error", err);
         }
-        console.log("Found");
+
         setRoutes((r) => {
           return [...r, rideData];
         });

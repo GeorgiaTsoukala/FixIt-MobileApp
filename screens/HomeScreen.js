@@ -1,8 +1,15 @@
 import React from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ImageBackground,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
+import background from "../assets/background.jpg";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -31,6 +38,14 @@ const HomeScreen = () => {
     }
   };
 
+  const viewHistory = async () => {
+    try {
+      navigation.navigate("History");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   const handleSignOut = async () => {
     try {
       await signOut(auth).then(() => {
@@ -42,8 +57,8 @@ const HomeScreen = () => {
   };
 
   return (
+    //<ImageBackground source={background} style={styles.bckground}>
     <View style={styles.container}>
-      <Text>Welcome!!!</Text>
       <TouchableOpacity onPress={viewProfile} style={styles.button}>
         <Text style={styles.buttonText}>My Profile</Text>
       </TouchableOpacity>
@@ -53,16 +68,27 @@ const HomeScreen = () => {
       <TouchableOpacity onPress={findRide} style={styles.button}>
         <Text style={styles.buttonText}>Find a ride</Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={viewHistory} style={styles.button}>
+        <Text style={styles.buttonText}>View history</Text>
+      </TouchableOpacity>
       <TouchableOpacity onPress={handleSignOut} style={styles.button}>
         <Text style={styles.buttonText}>Sign out</Text>
       </TouchableOpacity>
     </View>
+    //</ImageBackground>
   );
 };
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+  bckground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: null,
+    height: null,
+  },
   container: {
     flex: 1,
     justifyContent: "center",
