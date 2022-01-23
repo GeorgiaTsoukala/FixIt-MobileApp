@@ -7,7 +7,14 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-import { collection, query, where, getDocs, getDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  getDoc,
+  doc,
+} from "firebase/firestore";
 import { datab, auth } from "../firebase";
 
 const HistoryScreen = () => {
@@ -17,10 +24,14 @@ const HistoryScreen = () => {
     try {
       Keyboard.dismiss();
       setRoutes([]);
+
       //find the routes where the driver is the current User
+      driverRef = doc(datab, "users/" + auth.currentUser.uid);
+
+      where("driver", "==", driverRef);
       const q = query(
         collection(datab, "routes"),
-        where("driver", "==", "/users/" + auth.currentUser.uid)
+        where("driver", "==", driverRef)
       );
 
       const querySnapshot = await getDocs(q);
