@@ -57,25 +57,28 @@ const HomeScreen = () => {
   };
 
   return (
-    //<ImageBackground source={background} style={styles.bckground}>
-    <View style={styles.container}>
-      <TouchableOpacity onPress={viewProfile} style={styles.button}>
-        <Text style={styles.buttonText}>My Profile</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={addRoute} style={styles.button}>
-        <Text style={styles.buttonText}>Add a route</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={findRide} style={styles.button}>
-        <Text style={styles.buttonText}>Find a ride</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={viewHistory} style={styles.button}>
-        <Text style={styles.buttonText}>View history</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={handleSignOut} style={styles.button}>
-        <Text style={styles.buttonText}>Sign out</Text>
-      </TouchableOpacity>
-    </View>
-    //</ImageBackground>
+    <ImageBackground source={background} style={styles.bckground}>
+      <View style={styles.container}>
+        <TouchableOpacity onPress={viewProfile} style={styles.button}>
+          <Text style={styles.buttonText}>My Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={addRoute} style={styles.button}>
+          <Text style={styles.buttonText}>Add a route</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={findRide} style={styles.button}>
+          <Text style={styles.buttonText}>Find a ride</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={viewHistory} style={styles.button}>
+          <Text style={styles.buttonText}>View history</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleSignOut}
+          style={[styles.button, styles.buttonOutline]}
+        >
+          <Text style={styles.buttonOutlineText}>Sign out</Text>
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
   );
 };
 
@@ -86,8 +89,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    width: null,
-    height: null,
+    width: "100%",
+    height: "100%",
   },
   container: {
     flex: 1,
@@ -95,7 +98,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    width: "60%",
+    width: 230,
     backgroundColor: "indianred",
     padding: 15,
     borderRadius: 10,
@@ -104,6 +107,16 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "white",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  buttonOutline: {
+    backgroundColor: "white",
+    borderColor: "indianred",
+    borderWidth: 2,
+  },
+  buttonOutlineText: {
+    color: "indianred",
     fontWeight: "700",
     fontSize: 15,
   },

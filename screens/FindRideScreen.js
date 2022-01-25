@@ -11,6 +11,7 @@ import {
   Platform,
   FlatList,
   Modal,
+  Picker,
 } from "react-native";
 import { collection, query, where, getDocs, getDoc } from "firebase/firestore";
 import { datab, storage } from "../firebase";
@@ -30,6 +31,7 @@ const FindRideScreen = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [carImage, setCarImage] = useState(null);
+  const [passengers, setPassengers] = useState(1);
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -39,10 +41,9 @@ const FindRideScreen = () => {
     let tempDate = new Date(currentDate);
     if (mode == "date") {
       setFormatedDate(
-        tempDate.getMonth() +
-          1 +
+        tempDate.getDate() +
           "/" +
-          tempDate.getDate() +
+          (tempDate.getMonth() + 1) +
           "/" +
           tempDate.getFullYear()
       );
@@ -71,7 +72,8 @@ const FindRideScreen = () => {
       const q = query(
         collection(datab, "routes"),
         where("origin", "==", origin.trim()),
-        where("destination", "==", destination.trim())
+        where("destination", "==", destination.trim()),
+        where("passengers", ">=", passengers)
       );
 
       const querySnapshot = await getDocs(q);
@@ -95,6 +97,7 @@ const FindRideScreen = () => {
         });
       });
     } catch (error) {
+      console.log(error.message);
       alert(error.message);
     }
   };
@@ -150,10 +153,8 @@ const FindRideScreen = () => {
   );
 
   const FlatListItemPressed = (driverData) => {
-    console.log("pressHandler", driverData.firstName);
     //load profile image
     if (driverData?.profileImage) {
-      console.log("driverData?.profileImage");
       const refStorage = ref(storage, driverData.profileImage);
       getDownloadURL(refStorage).then((res) => {
         setProfileImage(res);
@@ -226,6 +227,17 @@ const FindRideScreen = () => {
           onChangeText={(text) => setDestination(text)}
           style={styles.input}
         />
+      </View>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={passengers}
+          onValueChange={(itemValue) => setPassengers(itemValue)}
+        >
+          <Picker.Item label="1 Passenger" value={1} />
+          <Picker.Item label="2 Passengers" value={2} />
+          <Picker.Item label="3 Passengers" value={3} />
+          <Picker.Item label="4 Passengers" value={4} />
+        </Picker>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -305,5 +317,12 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
     borderRadius: 20,
     elevation: 20,
+  },
+  pickerContainer: {
+    backgroundColor: "white",
+    width: "80%",
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    marginBottom: 5,
   },
 });

@@ -14,6 +14,7 @@ import {
   getDocs,
   getDoc,
   doc,
+  orderBy,
 } from "firebase/firestore";
 import { datab, auth } from "../firebase";
 
@@ -31,7 +32,8 @@ const HistoryScreen = () => {
       where("driver", "==", driverRef);
       const q = query(
         collection(datab, "routes"),
-        where("driver", "==", driverRef)
+        where("driver", "==", driverRef),
+        orderBy("date")
       );
 
       const querySnapshot = await getDocs(q);

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Button,
   Platform,
+  Picker,
 } from "react-native";
 import { addDoc, collection, doc } from "firebase/firestore";
 import { datab, auth } from "../firebase";
@@ -15,6 +16,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 const AddRouteScreen = () => {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [passengers, setPassengers] = useState(1);
   const [date, setDate] = useState(new Date());
   const [formatedDate, setFormatedDate] = useState("Date");
   const [formatedTime, setFormatedTime] = useState("Time");
@@ -29,10 +31,9 @@ const AddRouteScreen = () => {
     let tempDate = new Date(currentDate);
     if (mode == "date") {
       setFormatedDate(
-        tempDate.getMonth() +
-          1 +
+        tempDate.getDate() +
           "/" +
-          tempDate.getDate() +
+          (tempDate.getMonth() + 1) +
           "/" +
           tempDate.getFullYear()
       );
@@ -61,6 +62,7 @@ const AddRouteScreen = () => {
         destination: destination.trim(),
         driver: doc(datab, "users", auth.currentUser.uid),
         date: date,
+        passengers: passengers,
       };
 
       //add to the routes database
@@ -103,6 +105,17 @@ const AddRouteScreen = () => {
           style={styles.input}
         />
       </View>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={passengers}
+          onValueChange={(itemValue) => setPassengers(itemValue)}
+        >
+          <Picker.Item label="1 Passenger" value={1} />
+          <Picker.Item label="2 Passengers" value={2} />
+          <Picker.Item label="3 Passengers" value={3} />
+          <Picker.Item label="4 Passengers" value={4} />
+        </Picker>
+      </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           onPress={handleSubmit}
@@ -131,7 +144,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 10,
-    marginBottom: 5,
+    marginBottom: 10,
   },
   buttonContainer: {
     width: "60%",
@@ -156,5 +169,12 @@ const styles = StyleSheet.create({
     color: "indianred",
     fontWeight: "700",
     fontSize: 15,
+  },
+  pickerContainer: {
+    backgroundColor: "white",
+    width: "80%",
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    marginBottom: 5,
   },
 });
