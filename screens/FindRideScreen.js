@@ -23,8 +23,8 @@ const FindRideScreen = () => {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [date, setDate] = useState(new Date());
-  const [formatedDate, setFormatedDate] = useState("Date");
-  const [formatedTime, setFormatedTime] = useState("Time");
+  const [formatedDate, setFormatedDate] = useState("Select date");
+  const [formatedTime, setFormatedTime] = useState("Select time");
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
   const [routes, setRoutes] = useState([]);
@@ -197,11 +197,13 @@ const FindRideScreen = () => {
           )}
         </View>
       </Modal>
-      <View>
-        <Button onPress={showDatepicker} title={formatedDate} />
-      </View>
-      <View>
-        <Button onPress={showTimepicker} title={formatedTime} />
+      <View style={styles.dateContainer}>
+        <TouchableOpacity onPress={showDatepicker} style={styles.dateButton}>
+          <Text style={styles.buttonText}>{formatedDate}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={showTimepicker} style={styles.dateButton}>
+          <Text style={styles.buttonText}>{formatedTime}</Text>
+        </TouchableOpacity>
       </View>
       {show && (
         <DateTimePicker
@@ -272,6 +274,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: "center",
   },
+  dateContainer: {
+    width: "40%",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    marginBottom: 10,
+  },
   inputContainer: {
     width: "80%",
   },
@@ -287,6 +296,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 35,
+  },
+  dateButton: {
+    width: "80%",
+    backgroundColor: "indianred",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    marginRight: 5,
+    marginLeft: 5,
   },
   button: {
     width: "100%",
@@ -324,5 +342,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 10,
     marginBottom: 5,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 15,
   },
 });

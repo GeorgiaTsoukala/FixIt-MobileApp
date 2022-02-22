@@ -26,14 +26,15 @@ const HistoryScreen = () => {
       Keyboard.dismiss();
       setRoutes([]);
 
-      //find the routes where the driver is the current User
+      //find the past routes where the driver is the current User
       driverRef = doc(datab, "users/" + auth.currentUser.uid);
+      const today = new Date();
 
-      where("driver", "==", driverRef);
       const q = query(
         collection(datab, "routes"),
         where("driver", "==", driverRef),
-        orderBy("date")
+        where("date", "<", today),
+        orderBy("date", "desc")
       );
 
       const querySnapshot = await getDocs(q);
@@ -58,6 +59,7 @@ const HistoryScreen = () => {
       });
     } catch (error) {
       alert(error.message);
+      console.log(error.message);
     }
   };
 

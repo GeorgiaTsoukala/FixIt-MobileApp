@@ -16,9 +16,13 @@ import * as ImagePicker from "expo-image-picker";
 const ProfileScreen = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage, setProfileImage] = useState(
+    Image.resolveAssetSource(require("../assets/profile.png")).uri
+  );
   const [isProfileNetworkImage, setProfileNetworkImage] = useState(false);
-  const [carImage, setCarImage] = useState(null);
+  const [carImage, setCarImage] = useState(
+    Image.resolveAssetSource(require("../assets/car.png")).uri
+  );
   const [isCarNetworkImage, setCarNetworkImage] = useState(false);
 
   useEffect(() => {
@@ -138,7 +142,9 @@ const ProfileScreen = () => {
   return (
     <View style={styles.container} behavior="padding">
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Button title="Pick a Profile image" onPress={pickProfileImage} />
+        <TouchableOpacity onPress={pickProfileImage} style={styles.button}>
+          <Text style={styles.buttonText}>Pick a Profile image</Text>
+        </TouchableOpacity>
         {profileImage && (
           <Image
             source={{ uri: profileImage }}
@@ -147,7 +153,9 @@ const ProfileScreen = () => {
         )}
       </View>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Button title="Pick an Image of your car" onPress={pickCarImage} />
+        <TouchableOpacity onPress={pickCarImage} style={styles.button}>
+          <Text style={styles.buttonText}>Pick an image of your car</Text>
+        </TouchableOpacity>
         {carImage && (
           <Image
             source={{ uri: carImage }}
@@ -204,7 +212,8 @@ const styles = StyleSheet.create({
     width: "60%",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 35,
+    marginTop: 20,
+    marginBottom: 10,
   },
   button: {
     width: "100%",
@@ -212,6 +221,11 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 15,
   },
   buttonOutline: {
     backgroundColor: "white",

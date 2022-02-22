@@ -11,6 +11,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
+  sendEmailVerification,
+  signOut,
 } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import { setDoc, doc } from "firebase/firestore";
@@ -24,7 +26,19 @@ const LoginScreen = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        navigation.replace("Home");
+        if (user.emailVerified == false) {
+          alert(
+            "Registered succesfully, please verify your email and then Login"
+          );
+          try {
+            sendEmailVerification(auth.currentUser);
+            signOut(auth);
+          } catch (error) {
+            alert(error.message);
+          }
+        } else {
+          navigation.replace("Home");
+        }
       }
     });
 

@@ -18,8 +18,8 @@ const AddRouteScreen = () => {
   const [destination, setDestination] = useState("");
   const [passengers, setPassengers] = useState(1);
   const [date, setDate] = useState(new Date());
-  const [formatedDate, setFormatedDate] = useState("Date");
-  const [formatedTime, setFormatedTime] = useState("Time");
+  const [formatedDate, setFormatedDate] = useState("Select date");
+  const [formatedTime, setFormatedTime] = useState("Select time");
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
 
@@ -74,11 +74,13 @@ const AddRouteScreen = () => {
 
   return (
     <View style={styles.container} behavior="padding">
-      <View>
-        <Button onPress={showDatepicker} title={formatedDate} />
-      </View>
-      <View>
-        <Button onPress={showTimepicker} title={formatedTime} />
+      <View style={styles.dateContainer}>
+        <TouchableOpacity onPress={showDatepicker} style={styles.dateButton}>
+          <Text style={styles.buttonText}>{formatedDate}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={showTimepicker} style={styles.dateButton}>
+          <Text style={styles.buttonText}>{formatedTime}</Text>
+        </TouchableOpacity>
       </View>
       {show && (
         <DateTimePicker
@@ -136,6 +138,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: "center",
   },
+  dateContainer: {
+    width: "40%",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    marginBottom: 10,
+  },
   inputContainer: {
     width: "80%",
   },
@@ -152,12 +161,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 35,
   },
+  dateButton: {
+    width: "80%",
+    backgroundColor: "indianred",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    marginRight: 5,
+    marginLeft: 5,
+  },
   button: {
     width: "100%",
     backgroundColor: "indianred",
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 15,
   },
   buttonOutline: {
     backgroundColor: "white",
