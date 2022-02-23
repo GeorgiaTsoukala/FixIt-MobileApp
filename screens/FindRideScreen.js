@@ -32,6 +32,7 @@ const FindRideScreen = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [carImage, setCarImage] = useState(null);
   const [passengers, setPassengers] = useState(1);
+  const [availableSeats, setAvailableSeats] = useState(0);
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -84,6 +85,7 @@ const FindRideScreen = () => {
           destination: doc.data().destination,
           origin: doc.data().origin,
           date: doc.data().date.toDate(),
+          passengers: doc.data().passengers,
         };
         try {
           const driver = await (await getDoc(doc.data().driver)).data();
@@ -152,20 +154,25 @@ const FindRideScreen = () => {
     </View>
   );
 
-  const FlatListItemPressed = (driverData) => {
+  const FlatListItemPressed = (data) => {
     //load profile image
-    if (driverData?.profileImage) {
-      const refStorage = ref(storage, driverData.profileImage);
+    if (data.driver?.profileImage) {
+      const refStorage = ref(storage, data.driver.profileImage);
       getDownloadURL(refStorage).then((res) => {
         setProfileImage(res);
       });
     }
     //load car image
-    if (driverData?.carImage) {
-      const refStorage = ref(storage, driverData.carImage);
+    if (data.driver?.carImage) {
+      const refStorage = ref(storage, data.driver.carImage);
       getDownloadURL(refStorage).then((res) => {
         setCarImage(res);
       });
+    }
+
+    //load available passengers
+    if (data?.passengers) {
+      setAvailableSeats(data.passengers);
     }
     //open pop-up window
     setModalOpen(true);
@@ -178,23 +185,29 @@ const FindRideScreen = () => {
           <MaterialIcons
             name="close"
             size={24}
+            style={{ alignSelf: "flex-end" }}
             onPress={() => (
               setModalOpen(false), setProfileImage(null), setCarImage(null)
             )}
           />
-          <Text>Driver's info</Text>
+          <Text style={{ marginTop: 5 }}>Driver's info</Text>
           {profileImage && (
             <Image
               source={{ uri: profileImage }}
-              style={{ width: 200, height: 200 }}
+              style={{ width: 200, height: 200, marginTop: 15 }}
             />
           )}
+          <Text>Profile</Text>
           {carImage && (
             <Image
               source={{ uri: carImage }}
-              style={{ width: 200, height: 200 }}
+              style={{ width: 200, height: 200, marginTop: 15 }}
             />
           )}
+          <Text>Car</Text>
+          <Text style={{ alignSelf: "flex-start", marginTop: 15 }}>
+            Available Seats: {availableSeats}
+          </Text>
         </View>
       </Modal>
       <View style={styles.dateContainer}>
@@ -256,7 +269,7 @@ const FindRideScreen = () => {
           renderItem={({ item }) => (
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => FlatListItemPressed(item.driver)}
+              onPress={() => FlatListItemPressed(item)}
             >
               <FlatListItem value={item} keyExtractor={(item) => item.id} />
             </TouchableOpacity>
@@ -289,7 +302,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 10,
-    marginBottom: 5,
+    marginBottom: 10,
   },
   buttonContainer: {
     width: "60%",
@@ -330,6 +343,7 @@ const styles = StyleSheet.create({
     marginBottom: 90,
     alignItems: "center",
     width: "80%",
+    alignSelf: "center",
     backgroundColor: "white",
     paddingHorizontal: 20,
     paddingVertical: 30,

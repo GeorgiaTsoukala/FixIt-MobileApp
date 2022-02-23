@@ -37,7 +37,7 @@ const LoginScreen = () => {
             alert(error.message);
           }
         } else {
-          navigation.replace("Home");
+          navigation.replace("TabNavigator");
         }
       }
     });
