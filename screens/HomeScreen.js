@@ -17,7 +17,7 @@ const HomeScreen = () => {
   const handleSignOut = async () => {
     try {
       await signOut(auth).then(() => {
-        navigation.replace("Login");
+        navigation.replace("LoginScreen");
       });
     } catch (error) {
       alert(error.message);
