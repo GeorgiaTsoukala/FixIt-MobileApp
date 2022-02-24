@@ -9,7 +9,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
-import background from "../assets/background.jpg";
+import background from "../assets/background.png";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
