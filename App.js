@@ -10,7 +10,7 @@ export default function App() {
     </NavigationContainer>
   );
 }
-//lolaaa
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
