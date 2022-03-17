@@ -7,7 +7,6 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
-  Button,
   Platform,
   FlatList,
   Modal,
@@ -30,7 +29,6 @@ const FindRideScreen = () => {
   const [routes, setRoutes] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
-  const [carImage, setCarImage] = useState(null);
   const [passengers, setPassengers] = useState(1);
   const [availableSeats, setAvailableSeats] = useState(0);
 
@@ -162,13 +160,6 @@ const FindRideScreen = () => {
         setProfileImage(res);
       });
     }
-    //load car image
-    if (data.driver?.carImage) {
-      const refStorage = ref(storage, data.driver.carImage);
-      getDownloadURL(refStorage).then((res) => {
-        setCarImage(res);
-      });
-    }
 
     //load available passengers
     if (data?.passengers) {
@@ -186,9 +177,7 @@ const FindRideScreen = () => {
             name="close"
             size={24}
             style={{ alignSelf: "flex-end" }}
-            onPress={() => (
-              setModalOpen(false), setProfileImage(null), setCarImage(null)
-            )}
+            onPress={() => (setModalOpen(false), setProfileImage(null))}
           />
           <Text style={{ marginTop: 5 }}>Driver's info</Text>
           {profileImage && (
@@ -198,13 +187,6 @@ const FindRideScreen = () => {
             />
           )}
           <Text>Profile</Text>
-          {carImage && (
-            <Image
-              source={{ uri: carImage }}
-              style={{ width: 200, height: 200, marginTop: 15 }}
-            />
-          )}
-          <Text>Car</Text>
           <Text style={{ alignSelf: "flex-start", marginTop: 15 }}>
             Available Seats: {availableSeats}
           </Text>

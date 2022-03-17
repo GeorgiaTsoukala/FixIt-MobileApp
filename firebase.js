@@ -4,12 +4,12 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAMPqPUN62Jl34uw8r8XNMSm6N-NR8t1Pw",
-  authDomain: "sharetheride-3c62c.firebaseapp.com",
-  projectId: "sharetheride-3c62c",
-  storageBucket: "sharetheride-3c62c.appspot.com",
-  messagingSenderId: "212067661188",
-  appId: "1:212067661188:web:29de709ba6ac788a5c99d1",
+  apiKey: "AIzaSyCnBc9JaMmsgKLYPSmOZCfikEQV2R-vPsw",
+  authDomain: "fixit-1dbe2.firebaseapp.com",
+  projectId: "fixit-1dbe2",
+  storageBucket: "fixit-1dbe2.appspot.com",
+  messagingSenderId: "235437558685",
+  appId: "1:235437558685:web:5966e6e78b803e0c47fd74",
 };
 
 // Initialize Firebase

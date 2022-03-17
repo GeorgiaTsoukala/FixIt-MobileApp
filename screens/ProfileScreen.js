@@ -6,7 +6,8 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
-  Button,
+  Picker,
+  ScrollView,
 } from "react-native";
 import { auth, datab, storage } from "../firebase";
 import { updateDoc, doc, getDoc } from "firebase/firestore";
@@ -20,10 +21,7 @@ const ProfileScreen = () => {
     Image.resolveAssetSource(require("../assets/profile.png")).uri
   );
   const [isProfileNetworkImage, setProfileNetworkImage] = useState(false);
-  const [carImage, setCarImage] = useState(
-    Image.resolveAssetSource(require("../assets/car.png")).uri
-  );
-  const [isCarNetworkImage, setCarNetworkImage] = useState(false);
+  const [category, setCategory] = useState("Customer");
 
   useEffect(() => {
     updateScreen();
@@ -40,14 +38,7 @@ const ProfileScreen = () => {
           setProfileNetworkImage(true);
         });
       }
-      //load car image
-      if (response?.data()?.carImage) {
-        const refStorage = ref(storage, response.data().carImage);
-        getDownloadURL(refStorage).then((res) => {
-          setCarImage(res);
-          setCarNetworkImage(true);
-        });
-      }
+
       //load first name/last name
       if (response?.data()?.firstName) {
         setFirstName(response.data().firstName);
@@ -85,6 +76,7 @@ const ProfileScreen = () => {
       let updatedFields = {
         firstName: firstName,
         lastName: lastName,
+        category: category,
       };
 
       //save profile image to storage
@@ -96,15 +88,6 @@ const ProfileScreen = () => {
         updatedFields = {
           ...updatedFields,
           profileImage: filename,
-        };
-      }
-      //save car image to storage
-      if (carImage && !isCarNetworkImage) {
-        let filename = carImage.substring(carImage.lastIndexOf("/") + 1);
-        await saveImage(carImage, filename);
-        updatedFields = {
-          ...updatedFields,
-          carImage: filename,
         };
       }
 
@@ -127,66 +110,85 @@ const ProfileScreen = () => {
     }
   };
 
-  const pickCarImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-    });
-
-    if (!result.cancelled) {
-      setCarImage(result.uri);
-      setCarNetworkImage(false);
-    }
-  };
-
   return (
-    <View style={styles.container} behavior="padding">
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <TouchableOpacity onPress={pickProfileImage} style={styles.button}>
-          <Text style={styles.buttonText}>Pick a Profile image</Text>
-        </TouchableOpacity>
-        {profileImage && (
-          <Image
-            source={{ uri: profileImage }}
-            style={{ width: 200, height: 200 }}
-          />
-        )}
-      </View>
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <TouchableOpacity onPress={pickCarImage} style={styles.button}>
-          <Text style={styles.buttonText}>Pick an image of your car</Text>
-        </TouchableOpacity>
-        {carImage && (
-          <Image
-            source={{ uri: carImage }}
-            style={{ width: 200, height: 200 }}
-          />
-        )}
-      </View>
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="First Name"
-          value={firstName}
-          onChangeText={(text) => setFirstName(text)}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="Last Name"
-          value={lastName}
-          onChangeText={(text) => setLastName(text)}
-          style={styles.input}
-        />
-        <Text style={styles.input}>Stars: 5</Text>
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          onPress={handleSave}
-          style={[styles.button, styles.buttonOutline]}
+    <ScrollView>
+      <View style={styles.container} behavior="padding">
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
         >
-          <Text style={styles.buttonOutlineText}>Save</Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={pickProfileImage} style={styles.button}>
+            <Text style={styles.buttonText}>Pick a Profile image</Text>
+          </TouchableOpacity>
+          {profileImage && (
+            <Image
+              source={{ uri: profileImage }}
+              style={{
+                width: 250,
+                height: 250,
+                marginTop: 10,
+                marginBottom: 40,
+              }}
+            />
+          )}
+        </View>
+
+        <View style={styles.inputContainer}>
+          <TextInput
+            placeholder="First Name"
+            value={firstName}
+            onChangeText={(text) => setFirstName(text)}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Last Name"
+            value={lastName}
+            onChangeText={(text) => setLastName(text)}
+            style={styles.input}
+          />
+          <Text style={{ marginTop: 15 }}>
+            {" "}
+            Customer or Professional Account?
+          </Text>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={category}
+              onValueChange={(itemValue) => setCategory(itemValue)}
+            >
+              <Picker.Item label="Customer" value={"Customer"} />
+              <Picker.Item
+                label="Cleaning Services"
+                value={"Cleaning Services"}
+              />
+              <Picker.Item
+                label="Cooling Technician"
+                value={"Cooling Technician"}
+              />
+              <Picker.Item
+                label="Disinfecting Services"
+                value={"Disinfecting Services"}
+              />
+              <Picker.Item label="Electrician" value={"Electrician"} />
+              <Picker.Item
+                label="Lift Maintanance"
+                value={"Lift Maintanance"}
+              />
+              <Picker.Item label="Locksmith" value={"Locksmith"} />
+              <Picker.Item label="Painter" value={"Painter"} />
+              <Picker.Item label="Plumber" value={"Plumber"} />
+              <Picker.Item label="Removals" value={"Removals"} />
+            </Picker>
+          </View>
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            onPress={handleSave}
+            style={[styles.button, styles.buttonOutline]}
+          >
+            <Text style={styles.buttonOutlineText}>Save</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -195,7 +197,7 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 20,
+    marginTop: 0,
     alignItems: "center",
   },
   inputContainer: {
@@ -220,6 +222,7 @@ const styles = StyleSheet.create({
     backgroundColor: "indianred",
     padding: 15,
     borderRadius: 10,
+    marginTop: 20,
     alignItems: "center",
   },
   buttonText: {
@@ -237,5 +240,12 @@ const styles = StyleSheet.create({
     color: "indianred",
     fontWeight: "700",
     fontSize: 15,
+  },
+  pickerContainer: {
+    backgroundColor: "white",
+    width: "100%",
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    marginBottom: 5,
   },
 });
