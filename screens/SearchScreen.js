@@ -18,18 +18,16 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ref, getDownloadURL } from "firebase/storage";
 
-const FindRideScreen = () => {
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
+const SearchScreen = () => {
+  const [location, setLocation] = useState("");
   const [date, setDate] = useState(new Date());
   const [formatedDate, setFormatedDate] = useState("Select date");
-  const [formatedTime, setFormatedTime] = useState("Select time");
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
-  const [routes, setRoutes] = useState([]);
+  const [options, setOptions] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
-  const [passengers, setPassengers] = useState(1);
+  const [category, setCategory] = useState("Customer");
   const [availableSeats, setAvailableSeats] = useState(0);
 
   const onChange = (event, selectedDate) => {
@@ -46,8 +44,6 @@ const FindRideScreen = () => {
           "/" +
           tempDate.getFullYear()
       );
-    } else {
-      setFormatedTime(tempDate.getHours() + ":" + tempDate.getMinutes());
     }
   };
 
@@ -60,40 +56,29 @@ const FindRideScreen = () => {
     showMode("date");
   };
 
-  const showTimepicker = () => {
-    showMode("time");
-  };
-
   const handleSearch = async () => {
+    console.log(category);
     try {
       Keyboard.dismiss();
-      setRoutes([]);
+      setOptions([]);
       const q = query(
-        collection(datab, "routes"),
-        where("origin", "==", origin.trim()),
-        where("destination", "==", destination.trim()),
-        where("passengers", ">=", passengers)
+        collection(datab, "users"),
+        where("category", "==", category.trim())
       );
 
       const querySnapshot = await getDocs(q);
-      const items = [];
       querySnapshot.forEach(async (doc) => {
-        let rideData = {
+        let workerData = {
           id: doc.id,
-          destination: doc.data().destination,
-          origin: doc.data().origin,
-          date: doc.data().date.toDate(),
-          passengers: doc.data().passengers,
+          firstName: doc.data().firstName,
+          lastName: doc.data().lastName,
+          phone: doc.data().phone,
+          category: doc.data().category,
+          //date: doc.data().date.toDate(),
         };
-        try {
-          const driver = await (await getDoc(doc.data().driver)).data();
-          rideData = { ...rideData, driver };
-        } catch (err) {
-          console.log("Error", err);
-        }
-
-        setRoutes((r) => {
-          return [...r, rideData];
+        console.log("found");
+        setOptions((ops) => {
+          return [...ops, workerData];
         });
       });
     } catch (error) {
@@ -121,11 +106,9 @@ const FindRideScreen = () => {
           alignItems: "center",
         }}
       >
-        <Text>Driver</Text>
+        <Text>Worker</Text>
         <Text>
-          {value.driver
-            ? value?.driver?.firstName + " " + value?.driver?.lastName
-            : "No Data"}
+          {value ? value?.firstName + " " + value?.lastName : "No Data"}
         </Text>
       </View>
       <View
@@ -136,12 +119,7 @@ const FindRideScreen = () => {
         }}
       ></View>
       <View style={{ display: "flex", flexDirection: "column" }}>
-        <Text>
-          {value.date.toDateString() +
-            " " +
-            value.date.toLocaleTimeString("el-GR")}
-        </Text>
-        <Text>{value.origin + " - " + value.destination}</Text>
+        <Text>{value.category}</Text>
       </View>
     </View>
   );
@@ -154,17 +132,13 @@ const FindRideScreen = () => {
 
   const FlatListItemPressed = (data) => {
     //load profile image
-    if (data.driver?.profileImage) {
-      const refStorage = ref(storage, data.driver.profileImage);
+    if (data?.profileImage) {
+      const refStorage = ref(storage, data.profileImage);
       getDownloadURL(refStorage).then((res) => {
         setProfileImage(res);
       });
     }
 
-    //load available passengers
-    if (data?.passengers) {
-      setAvailableSeats(data.passengers);
-    }
     //open pop-up window
     setModalOpen(true);
   };
@@ -179,7 +153,7 @@ const FindRideScreen = () => {
             style={{ alignSelf: "flex-end" }}
             onPress={() => (setModalOpen(false), setProfileImage(null))}
           />
-          <Text style={{ marginTop: 5 }}>Driver's info</Text>
+          <Text style={{ marginTop: 5 }}>Workers's info</Text>
           {profileImage && (
             <Image
               source={{ uri: profileImage }}
@@ -192,12 +166,42 @@ const FindRideScreen = () => {
           </Text>
         </View>
       </Modal>
+      <Text style={{ marginTop: 15, marginBottom: 5, fontSize: 15 }}>
+        What are you looking for?
+      </Text>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={category}
+          onValueChange={(itemValue) => setCategory(itemValue)}
+        >
+          <Picker.Item label="Cleaning Services" value={"Cleaning Services"} />
+          <Picker.Item
+            label="Cooling Technician"
+            value={"Cooling Technician"}
+          />
+          <Picker.Item
+            label="Disinfecting Services"
+            value={"Disinfecting Services"}
+          />
+          <Picker.Item label="Electrician" value={"Electrician"} />
+          <Picker.Item label="Lift Maintanance" value={"Lift Maintanance"} />
+          <Picker.Item label="Locksmith" value={"Locksmith"} />
+          <Picker.Item label="Painter" value={"Painter"} />
+          <Picker.Item label="Plumber" value={"Plumber"} />
+          <Picker.Item label="Removals" value={"Removals"} />
+        </Picker>
+      </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          placeholder="Where ?"
+          value={location}
+          onChangeText={(text) => setLocation(text)}
+          style={styles.input}
+        />
+      </View>
       <View style={styles.dateContainer}>
         <TouchableOpacity onPress={showDatepicker} style={styles.dateButton}>
           <Text style={styles.buttonText}>{formatedDate}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={showTimepicker} style={styles.dateButton}>
-          <Text style={styles.buttonText}>{formatedTime}</Text>
         </TouchableOpacity>
       </View>
       {show && (
@@ -211,31 +215,7 @@ const FindRideScreen = () => {
           onChange={onChange}
         />
       )}
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="From"
-          value={origin}
-          onChangeText={(text) => setOrigin(text)}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="To"
-          value={destination}
-          onChangeText={(text) => setDestination(text)}
-          style={styles.input}
-        />
-      </View>
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={passengers}
-          onValueChange={(itemValue) => setPassengers(itemValue)}
-        >
-          <Picker.Item label="1 Passenger" value={1} />
-          <Picker.Item label="2 Passengers" value={2} />
-          <Picker.Item label="3 Passengers" value={3} />
-          <Picker.Item label="4 Passengers" value={4} />
-        </Picker>
-      </View>
+
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           onPress={handleSearch}
@@ -247,7 +227,7 @@ const FindRideScreen = () => {
       <View style={{ marginTop: 20 }}>
         <FlatList
           ListEmptyComponent={<EmptyList />}
-          data={routes}
+          data={options}
           renderItem={({ item }) => (
             <TouchableOpacity
               activeOpacity={0.8}
@@ -261,7 +241,7 @@ const FindRideScreen = () => {
     </View>
   );
 };
-export default FindRideScreen;
+export default SearchScreen;
 
 const styles = StyleSheet.create({
   container: {

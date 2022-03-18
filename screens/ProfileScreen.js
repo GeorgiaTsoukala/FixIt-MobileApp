@@ -17,6 +17,7 @@ import * as ImagePicker from "expo-image-picker";
 const ProfileScreen = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState(0);
   const [profileImage, setProfileImage] = useState(
     Image.resolveAssetSource(require("../assets/profile.png")).uri
   );
@@ -39,12 +40,18 @@ const ProfileScreen = () => {
         });
       }
 
-      //load first name/last name
+      //load first name/last name/phone/category
       if (response?.data()?.firstName) {
         setFirstName(response.data().firstName);
       }
       if (response?.data()?.lastName) {
         setLastName(response.data().lastName);
+      }
+      if (response?.data()?.phone) {
+        setPhone(response.data().phone);
+      }
+      if (response?.data()?.category) {
+        setCategory(response.data().category);
       }
     }
   };
@@ -76,6 +83,7 @@ const ProfileScreen = () => {
       let updatedFields = {
         firstName: firstName,
         lastName: lastName,
+        phone: phone,
         category: category,
       };
 
@@ -123,10 +131,10 @@ const ProfileScreen = () => {
             <Image
               source={{ uri: profileImage }}
               style={{
-                width: 250,
-                height: 250,
+                width: 220,
+                height: 220,
                 marginTop: 10,
-                marginBottom: 40,
+                marginBottom: 20,
               }}
             />
           )}
@@ -145,8 +153,13 @@ const ProfileScreen = () => {
             onChangeText={(text) => setLastName(text)}
             style={styles.input}
           />
-          <Text style={{ marginTop: 15 }}>
-            {" "}
+          <TextInput
+            placeholder="Phone Number"
+            value={phone}
+            onChangeText={(text) => setPhone(text)}
+            style={styles.input}
+          />
+          <Text style={{ marginTop: 15, marginLeft: 5, fontSize: 15 }}>
             Customer or Professional Account?
           </Text>
           <View style={styles.pickerContainer}>

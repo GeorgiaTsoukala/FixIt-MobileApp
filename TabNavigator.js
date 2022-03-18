@@ -5,7 +5,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import AddRouteScreen from "./screens/AddRouteScreen";
-import FindRideScreen from "./screens/FindRideScreen";
+import SearchScreen from "./screens/SearchScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 
 const Tab = createBottomTabNavigator();
@@ -78,13 +78,13 @@ const BottomTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Find a Ride"
-        component={FindRideScreen}
+        name="Add a Route"
+        component={AddRouteScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <View>
               <MaterialIcons
-                name="search"
+                name="add"
                 size={24}
                 style={{
                   alignSelf: "center",
@@ -97,20 +97,20 @@ const BottomTabNavigator = () => {
                   color: focused ? "indianred" : "black",
                 }}
               >
-                Find Ride
+                Add
               </Text>
             </View>
           ),
         }}
       />
       <Tab.Screen
-        name="Add a Route"
-        component={AddRouteScreen}
+        name="Search for a handyman"
+        component={SearchScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <View>
               <MaterialIcons
-                name="add"
+                name="search"
                 size={35}
                 style={{
                   alignSelf: "center",
