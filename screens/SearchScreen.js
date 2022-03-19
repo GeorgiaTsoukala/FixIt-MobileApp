@@ -74,9 +74,10 @@ const SearchScreen = () => {
           lastName: doc.data().lastName,
           phone: doc.data().phone,
           category: doc.data().category,
+          profileImage: doc.data().profileImage,
           //date: doc.data().date.toDate(),
         };
-        console.log("found");
+
         setOptions((ops) => {
           return [...ops, workerData];
         });
@@ -157,10 +158,14 @@ const SearchScreen = () => {
           {profileImage && (
             <Image
               source={{ uri: profileImage }}
-              style={{ width: 200, height: 200, marginTop: 15 }}
+              style={{
+                width: 200,
+                height: 200,
+                marginTop: 15,
+                borderRadius: 10,
+              }}
             />
           )}
-          <Text>Profile</Text>
           <Text style={{ alignSelf: "flex-start", marginTop: 15 }}>
             Available Seats: {availableSeats}
           </Text>

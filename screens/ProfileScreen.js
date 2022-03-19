@@ -135,6 +135,7 @@ const ProfileScreen = () => {
                 height: 220,
                 marginTop: 10,
                 marginBottom: 20,
+                borderRadius: 10,
               }}
             />
           )}
