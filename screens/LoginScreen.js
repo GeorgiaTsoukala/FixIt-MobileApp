@@ -55,7 +55,6 @@ const LoginScreen = () => {
 
       const userInfo = {
         email: email.trim(),
-        stars: 0,
       };
 
       //create an instance at the "users" database , uid as key
@@ -105,7 +104,7 @@ const LoginScreen = () => {
           <Text style={styles.buttonOutlineText}>Register</Text>
         </TouchableOpacity>
       </View>
-    </View> //KeyboardAvoidingView
+    </View>
   );
 };
 

@@ -10,9 +10,10 @@ import {
   ScrollView,
 } from "react-native";
 import { auth, datab, storage } from "../firebase";
-import { updateDoc, doc, getDoc } from "firebase/firestore";
+import { updateDoc, doc, getDoc, GeoPoint } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as ImagePicker from "expo-image-picker";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 const ProfileScreen = () => {
   const [firstName, setFirstName] = useState("");
@@ -23,6 +24,9 @@ const ProfileScreen = () => {
   );
   const [isProfileNetworkImage, setProfileNetworkImage] = useState(false);
   const [category, setCategory] = useState("Customer");
+  const [address, setAddress] = useState("Address");
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
 
   useEffect(() => {
     updateScreen();
@@ -49,6 +53,9 @@ const ProfileScreen = () => {
       }
       if (response?.data()?.phone) {
         setPhone(response.data().phone);
+      }
+      if (response?.data()?.address) {
+        setAddress(response.data().address);
       }
       if (response?.data()?.category) {
         setCategory(response.data().category);
@@ -84,6 +91,8 @@ const ProfileScreen = () => {
         firstName: firstName,
         lastName: lastName,
         phone: phone,
+        address: address,
+        location: { Latitude: latitude, Longtitude: longitude },
         category: category,
       };
 
@@ -119,28 +128,26 @@ const ProfileScreen = () => {
   };
 
   return (
-    <ScrollView>
+    <ScrollView listViewDisplayed={false} keyboardShouldPersistTaps={"handled"}>
       <View style={styles.container} behavior="padding">
         <View
           style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
         >
-          <TouchableOpacity onPress={pickProfileImage} style={styles.button}>
-            <Text style={styles.buttonText}>Pick a Profile image</Text>
+          <TouchableOpacity onPress={pickProfileImage}>
+            {profileImage && (
+              <Image
+                source={{ uri: profileImage }}
+                style={{
+                  width: 210,
+                  height: 210,
+                  marginTop: 20,
+                  marginBottom: 20,
+                  borderRadius: 10,
+                }}
+              />
+            )}
           </TouchableOpacity>
-          {profileImage && (
-            <Image
-              source={{ uri: profileImage }}
-              style={{
-                width: 220,
-                height: 220,
-                marginTop: 10,
-                marginBottom: 20,
-                borderRadius: 10,
-              }}
-            />
-          )}
         </View>
-
         <View style={styles.inputContainer}>
           <TextInput
             placeholder="First Name"
@@ -160,8 +167,28 @@ const ProfileScreen = () => {
             onChangeText={(text) => setPhone(text)}
             style={styles.input}
           />
-          <Text style={{ marginTop: 15, marginLeft: 5, fontSize: 15 }}>
-            Customer or Professional Account?
+          <View style={styles.autocompleteContainer}>
+            <GooglePlacesAutocomplete
+              placeholder={address}
+              textInputProps={{
+                placeholderTextColor: "black",
+              }}
+              fetchDetails={true}
+              query={{
+                key: "AIzaSyDxg_ZVkVvJRQxpzjykpNBbExPtamshHEc",
+                language: "en", // language of the results
+              }}
+              onPress={(data, details = null) => {
+                setAddress(details.formatted_address);
+                setLatitude(details.geometry.location.lat);
+                setLongitude(details.geometry.location.lng);
+                console.log(details.geometry.location);
+              }}
+              onFail={(error) => console.error(error)}
+            />
+          </View>
+          <Text style={{ marginTop: 20, marginLeft: 5, fontSize: 15 }}>
+            Customer or Professional Account ?
           </Text>
           <View style={styles.pickerContainer}>
             <Picker
@@ -209,6 +236,12 @@ const ProfileScreen = () => {
 export default ProfileScreen;
 
 const styles = StyleSheet.create({
+  autocompleteContainer: {
+    width: "100%",
+    backgroundColor: "white",
+    paddingHorizontal: 5,
+    borderRadius: 10,
+  },
   container: {
     flex: 1,
     marginTop: 0,
