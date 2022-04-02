@@ -20,41 +20,12 @@ import { ref, getDownloadURL } from "firebase/storage";
 
 const SearchScreen = () => {
   const [location, setLocation] = useState("");
-  const [date, setDate] = useState(new Date());
   const [formatedDate, setFormatedDate] = useState("Select date");
-  const [mode, setMode] = useState("date");
-  const [show, setShow] = useState(false);
   const [options, setOptions] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [category, setCategory] = useState("Customer");
   const [availableSeats, setAvailableSeats] = useState(0);
-
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShow(Platform.OS === "ios");
-    setDate(currentDate);
-
-    let tempDate = new Date(currentDate);
-    if (mode == "date") {
-      setFormatedDate(
-        tempDate.getDate() +
-          "/" +
-          (tempDate.getMonth() + 1) +
-          "/" +
-          tempDate.getFullYear()
-      );
-    }
-  };
-
-  const showMode = (currentMode) => {
-    setShow(true);
-    setMode(currentMode);
-  };
-
-  const showDatepicker = () => {
-    showMode("date");
-  };
 
   const handleSearch = async () => {
     console.log(category);
@@ -75,7 +46,6 @@ const SearchScreen = () => {
           phone: doc.data().phone,
           category: doc.data().category,
           profileImage: doc.data().profileImage,
-          //date: doc.data().date.toDate(),
         };
 
         setOptions((ops) => {
@@ -145,105 +115,98 @@ const SearchScreen = () => {
   };
 
   return (
-    <View style={styles.container} behavior="padding">
-      <Modal transparent visible={modalOpen}>
-        <View style={styles.modalContainer}>
-          <MaterialIcons
-            name="close"
-            size={24}
-            style={{ alignSelf: "flex-end" }}
-            onPress={() => (setModalOpen(false), setProfileImage(null))}
-          />
-          <Text style={{ marginTop: 5 }}>Workers's info</Text>
-          {profileImage && (
-            <Image
-              source={{ uri: profileImage }}
-              style={{
-                width: 200,
-                height: 200,
-                marginTop: 15,
-                borderRadius: 10,
-              }}
+    <ScrollView>
+      <View style={styles.container} behavior="padding">
+        <Modal transparent visible={modalOpen}>
+          <View style={styles.modalContainer}>
+            <MaterialIcons
+              name="close"
+              size={24}
+              style={{ alignSelf: "flex-end" }}
+              onPress={() => (setModalOpen(false), setProfileImage(null))}
             />
-          )}
-          <Text style={{ alignSelf: "flex-start", marginTop: 15 }}>
-            Available Seats: {availableSeats}
-          </Text>
+            <Text style={{ marginTop: 5 }}>Workers's info</Text>
+            {profileImage && (
+              <Image
+                source={{ uri: profileImage }}
+                style={{
+                  width: 200,
+                  height: 200,
+                  marginTop: 15,
+                  borderRadius: 10,
+                }}
+              />
+            )}
+            <Text style={{ alignSelf: "flex-start", marginTop: 15 }}>
+              Available Seats: {availableSeats}
+            </Text>
+          </View>
+        </Modal>
+        <Text style={{ marginTop: 15, marginBottom: 5, fontSize: 15 }}>
+          What are you looking for?
+        </Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={category}
+            onValueChange={(itemValue) => setCategory(itemValue)}
+          >
+            <Picker.Item
+              label="Cleaning Services"
+              value={"Cleaning Services"}
+            />
+            <Picker.Item
+              label="Cooling Technician"
+              value={"Cooling Technician"}
+            />
+            <Picker.Item
+              label="Disinfecting Services"
+              value={"Disinfecting Services"}
+            />
+            <Picker.Item label="Electrician" value={"Electrician"} />
+            <Picker.Item label="Lift Maintanance" value={"Lift Maintanance"} />
+            <Picker.Item label="Locksmith" value={"Locksmith"} />
+            <Picker.Item label="Painter" value={"Painter"} />
+            <Picker.Item label="Plumber" value={"Plumber"} />
+            <Picker.Item label="Removals" value={"Removals"} />
+          </Picker>
         </View>
-      </Modal>
-      <Text style={{ marginTop: 15, marginBottom: 5, fontSize: 15 }}>
-        What are you looking for?
-      </Text>
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={category}
-          onValueChange={(itemValue) => setCategory(itemValue)}
-        >
-          <Picker.Item label="Cleaning Services" value={"Cleaning Services"} />
-          <Picker.Item
-            label="Cooling Technician"
-            value={"Cooling Technician"}
+        <View style={styles.inputContainer}>
+          <TextInput
+            placeholder="Where ?"
+            value={location}
+            onChangeText={(text) => setLocation(text)}
+            style={styles.input}
           />
-          <Picker.Item
-            label="Disinfecting Services"
-            value={"Disinfecting Services"}
+        </View>
+        <View style={styles.dateContainer}>
+          <TouchableOpacity onPress={showDatepicker} style={styles.dateButton}>
+            <Text style={styles.buttonText}>{formatedDate}</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            onPress={handleSearch}
+            style={[styles.button, styles.buttonOutline]}
+          >
+            <Text style={styles.buttonOutlineText}>Search</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={{ marginTop: 20 }}>
+          <FlatList
+            ListEmptyComponent={<EmptyList />}
+            data={options}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => FlatListItemPressed(item)}
+              >
+                <FlatListItem value={item} keyExtractor={(item) => item.id} />
+              </TouchableOpacity>
+            )}
           />
-          <Picker.Item label="Electrician" value={"Electrician"} />
-          <Picker.Item label="Lift Maintanance" value={"Lift Maintanance"} />
-          <Picker.Item label="Locksmith" value={"Locksmith"} />
-          <Picker.Item label="Painter" value={"Painter"} />
-          <Picker.Item label="Plumber" value={"Plumber"} />
-          <Picker.Item label="Removals" value={"Removals"} />
-        </Picker>
+        </View>
       </View>
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Where ?"
-          value={location}
-          onChangeText={(text) => setLocation(text)}
-          style={styles.input}
-        />
-      </View>
-      <View style={styles.dateContainer}>
-        <TouchableOpacity onPress={showDatepicker} style={styles.dateButton}>
-          <Text style={styles.buttonText}>{formatedDate}</Text>
-        </TouchableOpacity>
-      </View>
-      {show && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode={mode}
-          is24Hour={true}
-          minimumDate={new Date()}
-          display="default"
-          onChange={onChange}
-        />
-      )}
-
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          onPress={handleSearch}
-          style={[styles.button, styles.buttonOutline]}
-        >
-          <Text style={styles.buttonOutlineText}>Search</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={{ marginTop: 20 }}>
-        <FlatList
-          ListEmptyComponent={<EmptyList />}
-          data={options}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => FlatListItemPressed(item)}
-            >
-              <FlatListItem value={item} keyExtractor={(item) => item.id} />
-            </TouchableOpacity>
-          )}
-        />
-      </View>
-    </View>
+    </ScrollView>
   );
 };
 export default SearchScreen;

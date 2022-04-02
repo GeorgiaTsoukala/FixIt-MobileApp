@@ -44,7 +44,7 @@ const ProfileScreen = () => {
         });
       }
 
-      //load first name/last name/phone/category
+      //load first name/last name/phone/address/category
       if (response?.data()?.firstName) {
         setFirstName(response.data().firstName);
       }
