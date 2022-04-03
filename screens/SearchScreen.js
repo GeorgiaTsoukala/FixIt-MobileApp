@@ -7,20 +7,18 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
-  Platform,
+  ScrollView,
   FlatList,
   Modal,
   Picker,
 } from "react-native";
 import { collection, query, where, getDocs, getDoc } from "firebase/firestore";
 import { datab, storage } from "../firebase";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ref, getDownloadURL } from "firebase/storage";
 
 const SearchScreen = () => {
   const [location, setLocation] = useState("");
-  const [formatedDate, setFormatedDate] = useState("Select date");
   const [options, setOptions] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
@@ -177,11 +175,6 @@ const SearchScreen = () => {
             onChangeText={(text) => setLocation(text)}
             style={styles.input}
           />
-        </View>
-        <View style={styles.dateContainer}>
-          <TouchableOpacity onPress={showDatepicker} style={styles.dateButton}>
-            <Text style={styles.buttonText}>{formatedDate}</Text>
-          </TouchableOpacity>
         </View>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
