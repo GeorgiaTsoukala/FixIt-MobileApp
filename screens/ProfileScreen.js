@@ -182,7 +182,6 @@ const ProfileScreen = () => {
                 setAddress(details.formatted_address);
                 setLatitude(details.geometry.location.lat);
                 setLongitude(details.geometry.location.lng);
-                console.log(details.geometry.location);
               }}
               onFail={(error) => console.error(error)}
             />

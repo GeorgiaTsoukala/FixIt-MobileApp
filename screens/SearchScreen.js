@@ -4,11 +4,10 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
+  Dimensions,
   TouchableOpacity,
   Image,
   ScrollView,
-  FlatList,
   Modal,
   Picker,
 } from "react-native";
@@ -16,17 +15,34 @@ import { collection, query, where, getDocs, getDoc } from "firebase/firestore";
 import { datab, storage } from "../firebase";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ref, getDownloadURL } from "firebase/storage";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import MapView, { Callout, Marker } from "react-native-maps";
+
+const staticData = [
+  { coordinates: { latitude: 37.78383, longitude: -122.405766 }, name: "jj" },
+  {
+    coordinates: { latitude: 37.78584, longitude: -122.405478 },
+    name: "fj",
+  },
+  {
+    coordinates: { latitude: 37.784738, longitude: -122.402839 },
+    name: "ff",
+  },
+];
 
 const SearchScreen = () => {
-  const [location, setLocation] = useState("");
+  const [category, setCategory] = useState("Customer");
+  const [address, setAddress] = useState("Enter location...");
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
   const [options, setOptions] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
-  const [category, setCategory] = useState("Customer");
-  const [availableSeats, setAvailableSeats] = useState(0);
+  const [name, setName] = useState("");
+  const [rating, setRating] = useState(0);
+  const [phone, setPhone] = useState(0);
 
   const handleSearch = async () => {
-    console.log(category);
     try {
       Keyboard.dismiss();
       setOptions([]);
@@ -44,6 +60,10 @@ const SearchScreen = () => {
           phone: doc.data().phone,
           category: doc.data().category,
           profileImage: doc.data().profileImage,
+          location: {
+            latitude: 39.3697823,
+            longitude: 22.9373009,
+          },
         };
 
         setOptions((ops) => {
@@ -99,7 +119,7 @@ const SearchScreen = () => {
     </View>
   );
 
-  const FlatListItemPressed = (data) => {
+  const markerPressed = (data) => {
     //load profile image
     if (data?.profileImage) {
       const refStorage = ref(storage, data.profileImage);
@@ -108,6 +128,14 @@ const SearchScreen = () => {
       });
     }
 
+    // load name/phone
+    if (data?.firstName && data?.lastName) {
+      setName(data.firstName);
+    }
+    if (data?.phone) {
+      setPhone(data.phone);
+    }
+    firstName;
     //open pop-up window
     setModalOpen(true);
   };
@@ -130,13 +158,22 @@ const SearchScreen = () => {
                 style={{
                   width: 200,
                   height: 200,
-                  marginTop: 15,
+                  marginTop: 25,
                   borderRadius: 10,
                 }}
               />
             )}
-            <Text style={{ alignSelf: "flex-start", marginTop: 15 }}>
-              Available Seats: {availableSeats}
+            <Text style={{ alignSelf: "flex-start", marginTop: 25 }}>
+              Name: {name}
+            </Text>
+            <Text style={{ alignSelf: "flex-start", marginTop: 5 }}>
+              Address: {}
+            </Text>
+            <Text style={{ alignSelf: "flex-start", marginTop: 5 }}>
+              Phone: {phone}
+            </Text>
+            <Text style={{ alignSelf: "flex-start", marginTop: 5 }}>
+              Rating: {}
             </Text>
           </View>
         </Modal>
@@ -146,6 +183,7 @@ const SearchScreen = () => {
         <View style={styles.pickerContainer}>
           <Picker
             selectedValue={category}
+            placeholderTextColor={"grey"}
             onValueChange={(itemValue) => setCategory(itemValue)}
           >
             <Picker.Item
@@ -168,12 +206,26 @@ const SearchScreen = () => {
             <Picker.Item label="Removals" value={"Removals"} />
           </Picker>
         </View>
-        <View style={styles.inputContainer}>
-          <TextInput
-            placeholder="Where ?"
-            value={location}
-            onChangeText={(text) => setLocation(text)}
-            style={styles.input}
+        <Text style={{ marginTop: 15, marginBottom: 5, fontSize: 15 }}>
+          Where?
+        </Text>
+        <View style={styles.autocompleteContainer}>
+          <GooglePlacesAutocomplete
+            placeholder={address}
+            textInputProps={{
+              placeholderTextColor: "grey",
+            }}
+            fetchDetails={true}
+            query={{
+              key: "AIzaSyDxg_ZVkVvJRQxpzjykpNBbExPtamshHEc",
+              language: "en", // language of the results
+            }}
+            onPress={(data, details = null) => {
+              setAddress(details.formatted_address);
+              setLatitude(details.geometry.location.lat);
+              setLongitude(details.geometry.location.lng);
+            }}
+            onFail={(error) => console.error(error)}
           />
         </View>
         <View style={styles.buttonContainer}>
@@ -184,20 +236,26 @@ const SearchScreen = () => {
             <Text style={styles.buttonOutlineText}>Search</Text>
           </TouchableOpacity>
         </View>
-        <View style={{ marginTop: 20 }}>
-          <FlatList
-            ListEmptyComponent={<EmptyList />}
-            data={options}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => FlatListItemPressed(item)}
-              >
-                <FlatListItem value={item} keyExtractor={(item) => item.id} />
-              </TouchableOpacity>
-            )}
-          />
-        </View>
+        <MapView
+          style={styles.map}
+          initialRegion={{
+            latitude: 38.2671,
+            longitude: 24.0156,
+            latitudeDelta: 7,
+            longitudeDelta: 7,
+          }}
+        >
+          {options.map((item, index) => (
+            <Marker key={index} coordinate={item.location}>
+              <Callout onPress={() => markerPressed(item)}>
+                <Text>
+                  {item.firstName}
+                  {item.lastName}
+                </Text>
+              </Callout>
+            </Marker>
+          ))}
+        </MapView>
       </View>
     </ScrollView>
   );
@@ -209,6 +267,12 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 20,
     alignItems: "center",
+  },
+  autocompleteContainer: {
+    width: "80%",
+    backgroundColor: "white",
+    paddingHorizontal: 5,
+    borderRadius: 10,
   },
   dateContainer: {
     width: "40%",
@@ -231,7 +295,8 @@ const styles = StyleSheet.create({
     width: "60%",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 35,
+    marginTop: 25,
+    marginBottom: 10,
   },
   dateButton: {
     width: "80%",
@@ -262,8 +327,8 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    marginTop: 90,
-    marginBottom: 90,
+    marginTop: 160,
+    marginBottom: 160,
     alignItems: "center",
     width: "80%",
     alignSelf: "center",
@@ -284,5 +349,9 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "700",
     fontSize: 15,
+  },
+  map: {
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height * 0.49,
   },
 });

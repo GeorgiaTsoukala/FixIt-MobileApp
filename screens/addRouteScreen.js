@@ -1,7 +1,18 @@
 import React from "react";
-import MapView from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import { StyleSheet, Text, View, Dimensions } from "react-native";
-import { Marker } from "react-native-maps";
+
+const staticData = [
+  { coordinates: { latitude: 37.78383, longitude: -122.405766 }, name: "jj" },
+  {
+    coordinates: { latitude: 37.78584, longitude: -122.405478 },
+    name: "fj",
+  },
+  {
+    coordinates: { latitude: 37.784738, longitude: -122.402839 },
+    name: "ff",
+  },
+];
 
 const tokyoRegion = {
   latitude: 39.3697823,
@@ -16,13 +27,15 @@ const AddRouteScreen = () => {
       <MapView
         style={styles.map}
         initialRegion={{
-          latitude: 37.939648,
-          longitude: 23.7477808,
+          latitude: 37.78383,
+          longitude: -122.405766,
           latitudeDelta: 0.04,
           longitudeDelta: 0.01,
         }}
       >
-        <Marker coordinate={tokyoRegion} />
+        {staticData.map((item, index) => (
+          <Marker key={index} title={item.name} coordinate={item.coordinates} />
+        ))}
       </MapView>
     </View>
   );
@@ -39,6 +52,6 @@ const styles = StyleSheet.create({
   },
   map: {
     width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height,
+    height: Dimensions.get("window").height / 2,
   },
 });
