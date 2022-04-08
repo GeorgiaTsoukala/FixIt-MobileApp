@@ -18,18 +18,6 @@ import { ref, getDownloadURL } from "firebase/storage";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import MapView, { Callout, Marker } from "react-native-maps";
 
-const staticData = [
-  { coordinates: { latitude: 37.78383, longitude: -122.405766 }, name: "jj" },
-  {
-    coordinates: { latitude: 37.78584, longitude: -122.405478 },
-    name: "fj",
-  },
-  {
-    coordinates: { latitude: 37.784738, longitude: -122.402839 },
-    name: "ff",
-  },
-];
-
 const SearchScreen = () => {
   const [category, setCategory] = useState("Customer");
   const [address, setAddress] = useState("Enter location...");
@@ -41,6 +29,15 @@ const SearchScreen = () => {
   const [name, setName] = useState("");
   const [rating, setRating] = useState(0);
   const [phone, setPhone] = useState(0);
+
+  let state = {
+    region: {
+      latitude: 38.2671,
+      longitude: 24.0156,
+      latitudeDelta: 7,
+      longitudeDelta: 7,
+    },
+  };
 
   const handleSearch = async () => {
     try {
@@ -70,48 +67,16 @@ const SearchScreen = () => {
           return [...ops, workerData];
         });
       });
+      console.log("state.region.latitude");
+      state.region.latitude = 39.3697823;
+      state.region.longitude = 22.9373009;
+      state.region.latitudeDelta = 0.015;
+      state.region.longitudeDelta = 0.0121;
     } catch (error) {
       console.log(error.message);
       alert(error.message);
     }
   };
-
-  const FlatListItem = ({ value }) => (
-    <View
-      style={{
-        backgroundColor: "#ddd",
-        borderRadius: 18,
-        elevation: 4,
-        marginTop: 10,
-        paddingHorizontal: 15,
-        paddingVertical: 8,
-        flexDirection: "row",
-      }}
-    >
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Text>Worker</Text>
-        <Text>
-          {value ? value?.firstName + " " + value?.lastName : "No Data"}
-        </Text>
-      </View>
-      <View
-        style={{
-          borderRightWidth: 3,
-          borderRightColor: "#bbb",
-          marginHorizontal: 10,
-        }}
-      ></View>
-      <View style={{ display: "flex", flexDirection: "column" }}>
-        <Text>{value.category}</Text>
-      </View>
-    </View>
-  );
 
   const EmptyList = () => (
     <View>
@@ -130,12 +95,13 @@ const SearchScreen = () => {
 
     // load name/phone
     if (data?.firstName && data?.lastName) {
+      console.log("fn");
       setName(data.firstName);
     }
     if (data?.phone) {
       setPhone(data.phone);
     }
-    firstName;
+
     //open pop-up window
     setModalOpen(true);
   };
@@ -238,12 +204,8 @@ const SearchScreen = () => {
         </View>
         <MapView
           style={styles.map}
-          initialRegion={{
-            latitude: 38.2671,
-            longitude: 24.0156,
-            latitudeDelta: 7,
-            longitudeDelta: 7,
-          }}
+          //ref={(map) => (this.map = map)}
+          region={state.region}
         >
           {options.map((item, index) => (
             <Marker key={index} coordinate={item.location}>
