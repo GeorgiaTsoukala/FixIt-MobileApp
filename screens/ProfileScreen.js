@@ -10,7 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import { auth, datab, storage } from "../firebase";
-import { updateDoc, doc, getDoc, GeoPoint } from "firebase/firestore";
+import { updateDoc, doc, getDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as ImagePicker from "expo-image-picker";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -92,7 +92,7 @@ const ProfileScreen = () => {
         lastName: lastName,
         phone: phone,
         address: address,
-        location: { Latitude: latitude, Longtitude: longitude },
+        location: { Latitude: latitude, Longitude: longitude },
         category: category,
       };
 

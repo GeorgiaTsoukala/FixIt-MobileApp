@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Keyboard } from "react-native";
 import {
+  Keyboard,
   StyleSheet,
   Text,
   View,
@@ -11,7 +11,7 @@ import {
   Modal,
   Picker,
 } from "react-native";
-import { collection, query, where, getDocs, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { datab, storage } from "../firebase";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ref, getDownloadURL } from "firebase/storage";
@@ -58,8 +58,8 @@ const SearchScreen = () => {
           category: doc.data().category,
           profileImage: doc.data().profileImage,
           location: {
-            latitude: 39.3697823,
-            longitude: 22.9373009,
+            latitude: doc.data().location.Latitude,
+            longitude: doc.data().location.Longitude,
           },
         };
 
@@ -67,11 +67,7 @@ const SearchScreen = () => {
           return [...ops, workerData];
         });
       });
-      console.log("state.region.latitude");
-      state.region.latitude = 39.3697823;
-      state.region.longitude = 22.9373009;
-      state.region.latitudeDelta = 0.015;
-      state.region.longitudeDelta = 0.0121;
+      console.log(address);
     } catch (error) {
       console.log(error.message);
       alert(error.message);
@@ -179,7 +175,7 @@ const SearchScreen = () => {
           <GooglePlacesAutocomplete
             placeholder={address}
             textInputProps={{
-              placeholderTextColor: "grey",
+              placeholderTextColor: "black",
             }}
             fetchDetails={true}
             query={{
@@ -187,6 +183,7 @@ const SearchScreen = () => {
               language: "en", // language of the results
             }}
             onPress={(data, details = null) => {
+              console.log(details.formatted_address);
               setAddress(details.formatted_address);
               setLatitude(details.geometry.location.lat);
               setLongitude(details.geometry.location.lng);

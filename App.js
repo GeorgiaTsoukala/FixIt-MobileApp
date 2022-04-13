@@ -1,7 +1,10 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, LogBox } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import MainStackNavigator from "./StackNavigator";
+
+LogBox.ignoreLogs(["Setting a timer for a long period of time"]);
+LogBox.ignoreLogs(["Picker has been extracted"]);
 
 export default function App() {
   return (
