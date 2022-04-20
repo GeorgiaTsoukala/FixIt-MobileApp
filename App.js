@@ -4,7 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import MainStackNavigator from "./StackNavigator";
 
 LogBox.ignoreLogs(["Setting a timer for a long period of time"]);
-LogBox.ignoreLogs(["Picker has been extracted"]);
+//LogBox.ignoreLogs(["Picker has been extracted"]);
 
 export default function App() {
   return (

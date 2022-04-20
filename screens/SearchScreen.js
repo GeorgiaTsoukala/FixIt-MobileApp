@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Keyboard,
   StyleSheet,
@@ -30,13 +30,16 @@ const SearchScreen = () => {
   const [rating, setRating] = useState(0);
   const [phone, setPhone] = useState(0);
 
-  let state = {
-    region: {
-      latitude: 38.2671,
-      longitude: 24.0156,
-      latitudeDelta: 7,
-      longitudeDelta: 7,
-    },
+  const mapRef = useRef(null);
+  const targetRegion = {
+    latitude: latitude,
+    longitude: longitude,
+    latitudeDelta: 0.1,
+    longitudeDelta: 0.1,
+  };
+  const goToTarget = () => {
+    //Animate the user to new region. Complete this animation in 2 seconds
+    mapRef.current.animateToRegion(targetRegion, 2 * 1000);
   };
 
   const handleSearch = async () => {
@@ -67,7 +70,9 @@ const SearchScreen = () => {
           return [...ops, workerData];
         });
       });
-      console.log(address);
+
+      //animate map to search coordinates
+      goToTarget();
     } catch (error) {
       console.log(error.message);
       alert(error.message);
@@ -91,7 +96,6 @@ const SearchScreen = () => {
 
     // load name/phone
     if (data?.firstName && data?.lastName) {
-      console.log("fn");
       setName(data.firstName);
     }
     if (data?.phone) {
@@ -103,7 +107,7 @@ const SearchScreen = () => {
   };
 
   return (
-    <ScrollView>
+    <ScrollView listViewDisplayed={false} keyboardShouldPersistTaps={"handled"}>
       <View style={styles.container} behavior="padding">
         <Modal transparent visible={modalOpen}>
           <View style={styles.modalContainer}>
@@ -183,7 +187,6 @@ const SearchScreen = () => {
               language: "en", // language of the results
             }}
             onPress={(data, details = null) => {
-              console.log(details.formatted_address);
               setAddress(details.formatted_address);
               setLatitude(details.geometry.location.lat);
               setLongitude(details.geometry.location.lng);
@@ -201,8 +204,13 @@ const SearchScreen = () => {
         </View>
         <MapView
           style={styles.map}
-          //ref={(map) => (this.map = map)}
-          region={state.region}
+          ref={mapRef} //assign ref to this MapView
+          initialRegion={{
+            latitude: 38.2671,
+            longitude: 24.0156,
+            latitudeDelta: 7,
+            longitudeDelta: 7,
+          }}
         >
           {options.map((item, index) => (
             <Marker key={index} coordinate={item.location}>
