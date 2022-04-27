@@ -26,7 +26,7 @@ const CustomTabBarButton = ({ children, onPress }) => (
         height: 65,
         alignItems: "center",
         borderRadius: 32.5,
-        backgroundColor: "indianred",
+        backgroundColor: "#267777",
       }}
     >
       {children}
@@ -56,6 +56,12 @@ const BottomTabNavigator = () => {
         name="Home"
         component={HomeScreen}
         options={{
+          headerStyle: {
+            backgroundColor: "#267777", //"#206464"
+          },
+          headerTitleStyle: {
+            color: "white",
+          },
           tabBarIcon: ({ focused }) => (
             <View>
               <MaterialIcons
@@ -63,13 +69,13 @@ const BottomTabNavigator = () => {
                 size={24}
                 style={{
                   alignSelf: "center",
-                  color: focused ? "indianred" : "black",
+                  color: focused ? "#267777" : "black",
                 }}
               />
               <Text
                 style={{
                   alignSelf: "center",
-                  color: focused ? "indianred" : "black",
+                  color: focused ? "#267777" : "black",
                 }}
               >
                 Home
@@ -82,6 +88,12 @@ const BottomTabNavigator = () => {
         name="Add a Route"
         component={AddRouteScreen}
         options={{
+          headerStyle: {
+            backgroundColor: "#267777", //"#206464"
+          },
+          headerTitleStyle: {
+            color: "white",
+          },
           tabBarIcon: ({ focused }) => (
             <View>
               <MaterialIcons
@@ -89,13 +101,13 @@ const BottomTabNavigator = () => {
                 size={24}
                 style={{
                   alignSelf: "center",
-                  color: focused ? "indianred" : "black",
+                  color: focused ? "#267777" : "black",
                 }}
               />
               <Text
                 style={{
                   alignSelf: "center",
-                  color: focused ? "indianred" : "black",
+                  color: focused ? "#267777" : "black",
                 }}
               >
                 Add
@@ -108,6 +120,12 @@ const BottomTabNavigator = () => {
         name="Search for a handyman"
         component={SearchScreen}
         options={{
+          headerStyle: {
+            backgroundColor: "#267777", //"#206464"
+          },
+          headerTitleStyle: {
+            color: "white",
+          },
           tabBarIcon: ({ focused }) => (
             <View>
               <MaterialIcons
@@ -115,7 +133,7 @@ const BottomTabNavigator = () => {
                 size={35}
                 style={{
                   alignSelf: "center",
-                  color: focused ? "white" : "black",
+                  color: focused ? "white" : "gainsboro",
                 }}
               />
             </View>
@@ -127,6 +145,12 @@ const BottomTabNavigator = () => {
         name="History"
         component={HistoryScreen}
         options={{
+          headerStyle: {
+            backgroundColor: "#267777", //"#206464"
+          },
+          headerTitleStyle: {
+            color: "white",
+          },
           tabBarIcon: ({ focused }) => (
             <View>
               <MaterialIcons
@@ -134,13 +158,13 @@ const BottomTabNavigator = () => {
                 size={24}
                 style={{
                   alignSelf: "center",
-                  color: focused ? "indianred" : "black",
+                  color: focused ? "#267777" : "black",
                 }}
               />
               <Text
                 style={{
                   alignSelf: "center",
-                  color: focused ? "indianred" : "black",
+                  color: focused ? "#267777" : "black",
                 }}
               >
                 History
@@ -153,6 +177,12 @@ const BottomTabNavigator = () => {
         name="Profile"
         component={ProfileScreen}
         options={{
+          headerStyle: {
+            backgroundColor: "#267777", //"#206464"
+          },
+          headerTitleStyle: {
+            color: "white",
+          },
           tabBarIcon: ({ focused }) => (
             <View>
               <MaterialIcons
@@ -160,13 +190,13 @@ const BottomTabNavigator = () => {
                 size={24}
                 style={{
                   alignSelf: "center",
-                  color: focused ? "indianred" : "black",
+                  color: focused ? "#267777" : "black",
                 }}
               />
               <Text
                 style={{
                   alignSelf: "center",
-                  color: focused ? "indianred" : "black",
+                  color: focused ? "#267777" : "black",
                 }}
               >
                 Profile

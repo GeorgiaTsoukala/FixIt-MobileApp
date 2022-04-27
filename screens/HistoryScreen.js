@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: "100%",
-    backgroundColor: "indianred",
+    backgroundColor: "#267777",
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
@@ -160,11 +160,11 @@ const styles = StyleSheet.create({
   buttonOutline: {
     backgroundColor: "white",
     marginTop: 5,
-    borderColor: "indianred",
+    borderColor: "#267777",
     borderWidth: 2,
   },
   buttonOutlineText: {
-    color: "indianred",
+    color: "#267777",
     fontWeight: "700",
     fontSize: 15,
   },

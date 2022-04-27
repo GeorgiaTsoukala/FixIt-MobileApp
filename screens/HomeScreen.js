@@ -9,6 +9,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
+import { MaterialIcons } from "@expo/vector-icons";
 import background from "../assets/background.png";
 
 const HomeScreen = () => {
@@ -26,14 +27,18 @@ const HomeScreen = () => {
 
   return (
     <ImageBackground source={background} style={styles.bckground}>
-      <View style={styles.container}>
-        <TouchableOpacity
-          onPress={handleSignOut}
-          style={[styles.button, styles.buttonOutline]}
-        >
-          <Text style={styles.buttonOutlineText}>Sign out</Text>
-        </TouchableOpacity>
-      </View>
+      <MaterialIcons
+        name="logout"
+        size={40}
+        style={{
+          alignSelf: "flex-end",
+          marginTop: 25,
+          marginRight: 25,
+          color: "#267777",
+        }}
+        onPress={handleSignOut}
+      />
+      <View style={styles.container}></View>
     </ImageBackground>
   );
 };

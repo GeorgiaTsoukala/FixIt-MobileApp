@@ -241,13 +241,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     borderRadius: 10,
   },
-  dateContainer: {
-    width: "40%",
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    marginBottom: 10,
-  },
+
   inputContainer: {
     width: "80%",
   },
@@ -265,18 +259,9 @@ const styles = StyleSheet.create({
     marginTop: 25,
     marginBottom: 10,
   },
-  dateButton: {
-    width: "80%",
-    backgroundColor: "indianred",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    marginRight: 5,
-    marginLeft: 5,
-  },
   button: {
     width: "100%",
-    backgroundColor: "indianred",
+    backgroundColor: "#267777",
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
@@ -284,11 +269,11 @@ const styles = StyleSheet.create({
   buttonOutline: {
     backgroundColor: "white",
     marginTop: 5,
-    borderColor: "indianred",
+    borderColor: "#267777",
     borderWidth: 2,
   },
   buttonOutlineText: {
-    color: "indianred",
+    color: "#267777",
     fontWeight: "700",
     fontSize: 15,
   },

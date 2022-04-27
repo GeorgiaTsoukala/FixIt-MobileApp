@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Image,
 } from "react-native";
 import { auth, datab } from "../firebase";
 import {
@@ -78,31 +79,40 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container} behavior="padding">
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-          style={styles.input}
+      <View style={styles.boxContainer}>
+        <Image
+          source={require("../assets/FixItLogo.png")}
+          style={{
+            width: 210,
+            height: 210,
+          }}
         />
-        <TextInput
-          placeholder="Password"
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-          style={styles.input}
-          secureTextEntry
-        />
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={handleLogin} style={styles.button}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={handleSignUp}
-          style={[styles.button, styles.buttonOutline]}
-        >
-          <Text style={styles.buttonOutlineText}>Register</Text>
-        </TouchableOpacity>
+        <View style={styles.inputContainer}>
+          <TextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Password"
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            style={styles.input}
+            secureTextEntry
+          />
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity onPress={handleLogin} style={styles.button}>
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleSignUp}
+            style={[styles.button, styles.buttonOutline]}
+          >
+            <Text style={styles.buttonOutlineText}>Register</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -115,6 +125,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#267777",
+  },
+  boxContainer: {
+    justifyContent: "center",
+    width: "80%",
+    height: "60%",
+    borderRadius: 10,
+    alignItems: "center",
+    backgroundColor: "#efefef",
   },
   inputContainer: {
     width: "80%",
@@ -134,7 +153,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: "100%",
-    backgroundColor: "indianred",
+    backgroundColor: "#267777",
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
@@ -147,11 +166,11 @@ const styles = StyleSheet.create({
   buttonOutline: {
     backgroundColor: "white",
     marginTop: 5,
-    borderColor: "indianred",
+    borderColor: "#267777",
     borderWidth: 2,
   },
   buttonOutlineText: {
-    color: "indianred",
+    color: "#267777",
     fontWeight: "700",
     fontSize: 15,
   },
