@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialIcons } from "@expo/vector-icons";
 import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
-import AddRouteScreen from "./screens/AddRouteScreen";
+import ReviewsScreen from "./screens/ReviewsScreen";
 import SearchScreen from "./screens/SearchScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 
@@ -85,11 +85,11 @@ const BottomTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Add a Route"
-        component={AddRouteScreen}
+        name="Reviews"
+        component={ReviewsScreen}
         options={{
           headerStyle: {
-            backgroundColor: "#267777", //"#206464"
+            backgroundColor: "#267777",
           },
           headerTitleStyle: {
             color: "white",
@@ -97,7 +97,7 @@ const BottomTabNavigator = () => {
           tabBarIcon: ({ focused }) => (
             <View>
               <MaterialIcons
-                name="add"
+                name="stars"
                 size={24}
                 style={{
                   alignSelf: "center",
@@ -110,7 +110,7 @@ const BottomTabNavigator = () => {
                   color: focused ? "#267777" : "black",
                 }}
               >
-                Add
+                Reviews
               </Text>
             </View>
           ),
@@ -121,7 +121,7 @@ const BottomTabNavigator = () => {
         component={SearchScreen}
         options={{
           headerStyle: {
-            backgroundColor: "#267777", //"#206464"
+            backgroundColor: "#267777",
           },
           headerTitleStyle: {
             color: "white",
@@ -146,7 +146,7 @@ const BottomTabNavigator = () => {
         component={HistoryScreen}
         options={{
           headerStyle: {
-            backgroundColor: "#267777", //"#206464"
+            backgroundColor: "#267777",
           },
           headerTitleStyle: {
             color: "white",
@@ -178,7 +178,7 @@ const BottomTabNavigator = () => {
         component={ProfileScreen}
         options={{
           headerStyle: {
-            backgroundColor: "#267777", //"#206464"
+            backgroundColor: "#267777",
           },
           headerTitleStyle: {
             color: "white",

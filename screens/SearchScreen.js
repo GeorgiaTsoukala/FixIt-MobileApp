@@ -96,7 +96,7 @@ const SearchScreen = () => {
 
     // load name/phone
     if (data?.firstName && data?.lastName) {
-      setName(data.firstName);
+      setName(data.firstName + " " + data.lastName);
     }
     if (data?.phone) {
       setPhone(data.phone);
@@ -117,7 +117,9 @@ const SearchScreen = () => {
               style={{ alignSelf: "flex-end" }}
               onPress={() => (setModalOpen(false), setProfileImage(null))}
             />
-            <Text style={{ marginTop: 5 }}>Workers's info</Text>
+            <Text style={{ marginTop: 5, fontWeight: "bold" }}>
+              Workers's info
+            </Text>
             {profileImage && (
               <Image
                 source={{ uri: profileImage }}
@@ -284,7 +286,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "80%",
     alignSelf: "center",
-    backgroundColor: "white",
+    backgroundColor: "#c7e2e2",
     paddingHorizontal: 20,
     paddingVertical: 30,
     borderRadius: 20,
