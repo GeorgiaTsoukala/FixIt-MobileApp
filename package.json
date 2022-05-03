@@ -25,6 +25,7 @@
     "react-native-google-places": "^3.1.2",
     "react-native-google-places-autocomplete": "^2.4.1",
     "react-native-maps": "0.28.1",
+    "react-native-ratings": "^8.1.0",
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "~3.8.0",
     "react-native-web": "0.17.1"

@@ -79,12 +79,6 @@ const SearchScreen = () => {
     }
   };
 
-  const EmptyList = () => (
-    <View>
-      <Text>No data Available</Text>
-    </View>
-  );
-
   const markerPressed = (data) => {
     //load profile image
     if (data?.profileImage) {
