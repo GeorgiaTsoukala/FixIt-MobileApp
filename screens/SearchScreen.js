@@ -136,23 +136,22 @@ const SearchScreen = () => {
               />
             )}
             <Text
-              style={{ alignSelf: "flex-start", marginTop: 25, fontSize: 15 }}
+              style={{
+                alignSelf: "center",
+                marginTop: 25,
+                fontSize: 18,
+                fontWeight: "bold",
+              }}
             >
-              Name: {name}
+              {name}
             </Text>
-            <Text
-              style={{ alignSelf: "flex-start", marginTop: 10, fontSize: 15 }}
-            >
-              Address: {businessAddress}
+            <Text style={{ alignSelf: "center", marginTop: 25, fontSize: 15 }}>
+              {businessAddress}
             </Text>
-            <Text
-              style={{ alignSelf: "flex-start", marginTop: 10, fontSize: 15 }}
-            >
-              Phone: {phone}
+            <Text style={{ alignSelf: "center", marginTop: 10, fontSize: 15 }}>
+              {phone}
             </Text>
-            <Text
-              style={{ alignSelf: "flex-start", marginTop: 10, fontSize: 15 }}
-            >
+            <Text style={{ alignSelf: "center", marginTop: 10, fontSize: 15 }}>
               Rating: {}
             </Text>
             <View style={{ flexDirection: "row" }}>
