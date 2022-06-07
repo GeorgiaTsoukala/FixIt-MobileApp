@@ -19,7 +19,7 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 import MapView, { Callout, Marker } from "react-native-maps";
 
 const SearchScreen = () => {
-  const [category, setCategory] = useState("Customer");
+  const [category, setCategory] = useState("");
   const [address, setAddress] = useState("Enter location...");
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
@@ -29,6 +29,8 @@ const SearchScreen = () => {
   const [name, setName] = useState("");
   const [rating, setRating] = useState(0);
   const [phone, setPhone] = useState(0);
+  const [businessAddress, setBusinessAddress] = useState("");
+  const [expoPushToken, setExpoPushToken] = useState("");
 
   const mapRef = useRef(null);
   const targetRegion = {
@@ -58,8 +60,10 @@ const SearchScreen = () => {
           firstName: doc.data().firstName,
           lastName: doc.data().lastName,
           phone: doc.data().phone,
+          address: doc.data().address,
           category: doc.data().category,
           profileImage: doc.data().profileImage,
+          expoPushToken: doc.data().expoPushToken,
           location: {
             latitude: doc.data().location.Latitude,
             longitude: doc.data().location.Longitude,
@@ -88,12 +92,20 @@ const SearchScreen = () => {
       });
     }
 
-    // load name/phone
+    // load name/phone/address
     if (data?.firstName && data?.lastName) {
       setName(data.firstName + " " + data.lastName);
     }
     if (data?.phone) {
       setPhone(data.phone);
+    }
+    if (data?.address) {
+      setBusinessAddress(data.address);
+    }
+
+    //load expoPushToken
+    if (data?.expoPushToken) {
+      setExpoPushToken(data.expoPushToken);
     }
 
     //open pop-up window
@@ -111,32 +123,56 @@ const SearchScreen = () => {
               style={{ alignSelf: "flex-end" }}
               onPress={() => (setModalOpen(false), setProfileImage(null))}
             />
-            <Text style={{ marginTop: 5, fontWeight: "bold" }}>
-              Workers's info
-            </Text>
+
             {profileImage && (
               <Image
                 source={{ uri: profileImage }}
                 style={{
                   width: 200,
                   height: 200,
-                  marginTop: 25,
+                  marginTop: 15,
                   borderRadius: 10,
                 }}
               />
             )}
-            <Text style={{ alignSelf: "flex-start", marginTop: 25 }}>
+            <Text
+              style={{ alignSelf: "flex-start", marginTop: 25, fontSize: 15 }}
+            >
               Name: {name}
             </Text>
-            <Text style={{ alignSelf: "flex-start", marginTop: 5 }}>
-              Address: {}
+            <Text
+              style={{ alignSelf: "flex-start", marginTop: 10, fontSize: 15 }}
+            >
+              Address: {businessAddress}
             </Text>
-            <Text style={{ alignSelf: "flex-start", marginTop: 5 }}>
+            <Text
+              style={{ alignSelf: "flex-start", marginTop: 10, fontSize: 15 }}
+            >
               Phone: {phone}
             </Text>
-            <Text style={{ alignSelf: "flex-start", marginTop: 5 }}>
+            <Text
+              style={{ alignSelf: "flex-start", marginTop: 10, fontSize: 15 }}
+            >
               Rating: {}
             </Text>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.smallButtonContainer}>
+                <TouchableOpacity
+                  //onPress={handleSearch}
+                  style={[styles.button, styles.buttonOutline]}
+                >
+                  <Text style={styles.buttonOutlineText}>Reviews</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.smallButtonContainer}>
+                <TouchableOpacity
+                  //onPress={handleSearch}
+                  style={[styles.button, styles.buttonOutlineReverse]}
+                >
+                  <Text style={styles.buttonOutlineTextReverse}>Hire</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
         </Modal>
         <Text style={{ marginTop: 15, marginBottom: 5, fontSize: 15 }}>
@@ -255,6 +291,15 @@ const styles = StyleSheet.create({
     marginTop: 25,
     marginBottom: 10,
   },
+  smallButtonContainer: {
+    width: "40%",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 10,
+    marginLeft: 15,
+    marginRight: 15,
+  },
   button: {
     width: "100%",
     backgroundColor: "#267777",
@@ -273,10 +318,21 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 15,
   },
+  buttonOutlineReverse: {
+    backgroundColor: "#267777",
+    marginTop: 5,
+    borderColor: "white",
+    borderWidth: 2,
+  },
+  buttonOutlineTextReverse: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 15,
+  },
   modalContainer: {
     flex: 1,
-    marginTop: 160,
-    marginBottom: 160,
+    marginTop: 150,
+    marginBottom: 150,
     alignItems: "center",
     width: "80%",
     alignSelf: "center",
