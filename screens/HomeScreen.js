@@ -1,11 +1,5 @@
-import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  ImageBackground,
-} from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet, View, ImageBackground } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { signOut } from "firebase/auth";
 import { auth, datab } from "../firebase";
@@ -16,13 +10,11 @@ import * as Notifications from "expo-notifications";
 import background from "../assets/background.png";
 
 const HomeScreen = () => {
-  const [expoPushToken, setExpoPushToken] = useState("");
+  const navigation = useNavigation();
 
   useEffect(() => {
     registerForPushNotificationsAsync();
   }, []);
-
-  const navigation = useNavigation();
 
   registerForPushNotificationsAsync = async () => {
     if (Device.isDevice) {
@@ -37,13 +29,24 @@ const HomeScreen = () => {
 
       //user did not grand permission
       if (finalStatus !== "granted") {
-        alert("Permission for push notification denied!");
+        alert("Enable push notification to use FixIt!");
         return;
       }
 
       //get the token that uniquely identifies the device
-      setExpoPushToken((await Notifications.getExpoPushTokenAsync()).data);
-      console.log("--set " + expoPushToken);
+      const token = (await Notifications.getExpoPushTokenAsync()).data;
+      try {
+        let updatedFields = {
+          expoPushToken: token,
+        };
+        //update the users database with the token
+        await updateDoc(
+          doc(datab, "users", auth.currentUser.uid),
+          updatedFields
+        );
+      } catch (error) {
+        alert(error.message);
+      }
     } else {
       alert("Must use physical device for Push Notifications");
     }
@@ -56,20 +59,11 @@ const HomeScreen = () => {
         lightColor: "#FF231F7C",
       });
     }
-
-    try {
-      let updatedFields = {
-        ExpoPushToken: expoPushToken,
-      };
-      //update the users database with the token
-      await updateDoc(doc(datab, "users", auth.currentUser.uid), updatedFields);
-    } catch (error) {
-      alert(error.message);
-    }
   };
 
   const handleSignOut = async () => {
     try {
+      //redirect to login screen
       await signOut(auth).then(() => {
         navigation.replace("LoginScreen");
       });

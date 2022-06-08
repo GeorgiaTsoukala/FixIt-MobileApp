@@ -46,7 +46,7 @@ const LoginScreen = () => {
     return unsubscribe;
   }, []);
 
-  const handleSignUp = async () => {
+  const handleRegister = async () => {
     try {
       const response = await createUserWithEmailAndPassword(
         auth,
@@ -107,7 +107,7 @@ const LoginScreen = () => {
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={handleSignUp}
+            onPress={handleRegister}
             style={[styles.button, styles.buttonOutline]}
           >
             <Text style={styles.buttonOutlineText}>Register</Text>

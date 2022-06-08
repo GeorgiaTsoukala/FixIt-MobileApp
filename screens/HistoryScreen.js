@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Keyboard } from "react-native";
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   FlatList,
+  Keyboard,
 } from "react-native";
 import {
   collection,

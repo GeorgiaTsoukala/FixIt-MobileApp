@@ -11,8 +11,15 @@ import {
   Modal,
   Picker,
 } from "react-native";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { datab, storage } from "../firebase";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+} from "firebase/firestore";
+import { auth, datab, storage } from "../firebase";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ref, getDownloadURL } from "firebase/storage";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -39,6 +46,31 @@ const SearchScreen = () => {
     latitudeDelta: 0.1,
     longitudeDelta: 0.1,
   };
+
+  const handleHire = async () => {
+    //get client's name
+    const response = await getDoc(doc(datab, "users", auth.currentUser.uid));
+    let customer = "";
+    if (response?.data()?.firstName && response?.data()?.lastName) {
+      customer = response.data().firstName + " " + response.data().lastName;
+    }
+
+    //send a notification to the selected worker
+    await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: expoPushToken,
+        sound: "default",
+        title: "FixIt",
+        body: customer + " wants to hire you!",
+      }),
+    });
+  };
+
   const goToTarget = () => {
     //Animate the user to new region. Complete this animation in 2 seconds
     mapRef.current.animateToRegion(targetRegion, 2 * 1000);
@@ -53,6 +85,7 @@ const SearchScreen = () => {
         where("category", "==", category.trim())
       );
 
+      //get info from all the documents that match the search criteria
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach(async (doc) => {
         let workerData = {
@@ -115,7 +148,7 @@ const SearchScreen = () => {
   return (
     <ScrollView listViewDisplayed={false} keyboardShouldPersistTaps={"handled"}>
       <View style={styles.container} behavior="padding">
-        <Modal transparent visible={modalOpen}>
+        <Modal transparent visible={modalOpen} animationType="slide">
           <View style={styles.modalContainer}>
             <MaterialIcons
               name="close"
@@ -165,7 +198,7 @@ const SearchScreen = () => {
               </View>
               <View style={styles.smallButtonContainer}>
                 <TouchableOpacity
-                  //onPress={handleSearch}
+                  onPress={handleHire}
                   style={[styles.button, styles.buttonOutlineReverse]}
                 >
                   <Text style={styles.buttonOutlineTextReverse}>Hire</Text>
