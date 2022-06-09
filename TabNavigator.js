@@ -154,7 +154,7 @@ const BottomTabNavigator = () => {
           tabBarIcon: ({ focused }) => (
             <View>
               <MaterialIcons
-                name="history"
+                name="notifications"
                 size={24}
                 style={{
                   alignSelf: "center",
