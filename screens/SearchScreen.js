@@ -18,6 +18,7 @@ import {
   getDocs,
   doc,
   getDoc,
+  addDoc,
 } from "firebase/firestore";
 import { auth, datab, storage } from "../firebase";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -34,6 +35,7 @@ const SearchScreen = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [name, setName] = useState("");
+  const [uid, setUid] = useState("");
   const [rating, setRating] = useState(0);
   const [phone, setPhone] = useState(0);
   const [businessAddress, setBusinessAddress] = useState("");
@@ -48,27 +50,40 @@ const SearchScreen = () => {
   };
 
   const handleHire = async () => {
-    //get client's name
-    const response = await getDoc(doc(datab, "users", auth.currentUser.uid));
-    let customer = "";
-    if (response?.data()?.firstName && response?.data()?.lastName) {
-      customer = response.data().firstName + " " + response.data().lastName;
-    }
+    try {
+      let updatedFields = {
+        customer: doc(datab, "users", auth.currentUser.uid),
+        worker: doc(datab, "users", uid),
+        status: "pending",
+      };
 
-    //send a notification to the selected worker
-    await fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: expoPushToken,
-        sound: "default",
-        title: "FixIt",
-        body: customer + " wants to hire you!",
-      }),
-    });
+      //add to the "transactions" database
+      await addDoc(collection(datab, "transactions"), updatedFields);
+
+      //get client's name
+      const response = await getDoc(doc(datab, "users", auth.currentUser.uid));
+      let customer = "";
+      if (response?.data()?.firstName && response?.data()?.lastName) {
+        customer = response.data().firstName + " " + response.data().lastName;
+      }
+
+      //send a notification to the selected worker
+      await fetch("https://exp.host/--/api/v2/push/send", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: expoPushToken,
+          sound: "default",
+          title: "FixIt",
+          body: customer + " hired you!",
+        }),
+      });
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   const goToTarget = () => {
@@ -136,9 +151,12 @@ const SearchScreen = () => {
       setBusinessAddress(data.address);
     }
 
-    //load expoPushToken
+    //load expoPushToken/uid
     if (data?.expoPushToken) {
       setExpoPushToken(data.expoPushToken);
+    }
+    if (data?.id) {
+      setUid(data.id);
     }
 
     //open pop-up window

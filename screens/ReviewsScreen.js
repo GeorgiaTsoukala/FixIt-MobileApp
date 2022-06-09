@@ -47,7 +47,7 @@ const ReviewsScreen = () => {
         stars: stars,
       };
 
-      //add to the reviews database
+      //add to the "reviews" database
       await addDoc(collection(datab, "reviews"), updatedFields);
     } catch (error) {
       alert(error.message);

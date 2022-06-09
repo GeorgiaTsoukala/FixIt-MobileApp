@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { StyleSheet, View, ImageBackground } from "react-native";
+import { StyleSheet, View, ImageBackground, Modal, Text } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { signOut } from "firebase/auth";
 import { auth, datab } from "../firebase";
@@ -19,7 +19,7 @@ Notifications.setNotificationHandler({
 });
 
 const HomeScreen = () => {
-  const [notification, setNotification] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
 
@@ -31,8 +31,11 @@ const HomeScreen = () => {
     //this listener is fired whenever a notification is received while the app is foregrounded
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
-        setNotification(notification);
-        console.log(notification.request.content.data); //.request.content.body
+        //open a modal for 2.5secs to inform the user of the new notification
+        setModalOpen(true);
+        setTimeout(() => {
+          setModalOpen(false);
+        }, 2500);
       });
 
     //this listener is fired whenever a user taps on or interacts with a notification
@@ -108,6 +111,19 @@ const HomeScreen = () => {
 
   return (
     <ImageBackground source={background} style={styles.bckground}>
+      <Modal transparent visible={modalOpen} animationType="slide">
+        <View style={styles.modalContainer}>
+          <Text
+            style={{
+              alignSelf: "center",
+              fontSize: 15,
+              fontWeight: "bold",
+            }}
+          >
+            You have a new notification!
+          </Text>
+        </View>
+      </Modal>
       <MaterialIcons
         name="logout"
         size={40}
@@ -119,7 +135,6 @@ const HomeScreen = () => {
         }}
         onPress={handleSignOut}
       />
-      <View style={styles.container}></View>
     </ImageBackground>
   );
 };
@@ -134,32 +149,16 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  container: {
-    flex: 1,
+  modalContainer: {
+    alignItems: "center",
+    alignSelf: "center",
+    width: "70%",
+    height: "5.5%",
+    backgroundColor: "pink",
+    paddingHorizontal: 20,
     justifyContent: "center",
-    alignItems: "center",
-  },
-  button: {
-    width: 230,
-    backgroundColor: "indianred",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 180,
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 15,
-  },
-  buttonOutline: {
-    backgroundColor: "white",
-    borderColor: "indianred",
-    borderWidth: 2,
-  },
-  buttonOutlineText: {
-    color: "indianred",
-    fontWeight: "700",
-    fontSize: 15,
+    borderRadius: 40,
+    elevation: 20,
+    marginTop: "6%",
   },
 });
