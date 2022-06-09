@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { StyleSheet, View, ImageBackground } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { signOut } from "firebase/auth";
@@ -9,14 +9,48 @@ import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import background from "../assets/background.png";
 
+//determines how your app handles notifications while the app is foregrounded
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: false,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
 const HomeScreen = () => {
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
+
   const navigation = useNavigation();
 
   useEffect(() => {
     registerForPushNotificationsAsync();
+
+    //this listener is fired whenever a notification is received while the app is foregrounded
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        setNotification(notification);
+        console.log(notification.request.content.data); //.request.content.body
+      });
+
+    //this listener is fired whenever a user taps on or interacts with a notification
+    //(works when app is foregrounded, backgrounded, or killed)
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log(response.notification.request.content.body);
+      });
+
+    return () => {
+      Notifications.removeNotificationSubscription(
+        notificationListener.current
+      );
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
   }, []);
 
-  registerForPushNotificationsAsync = async () => {
+  const registerForPushNotificationsAsync = async () => {
     if (Device.isDevice) {
       //make sure the app is running on a physical device
       const { status: existingStatus } =
