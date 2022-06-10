@@ -55,6 +55,7 @@ const SearchScreen = () => {
         customer: doc(datab, "users", auth.currentUser.uid),
         worker: doc(datab, "users", uid),
         status: "pending",
+        date: new Date(),
       };
 
       //add to the "transactions" database
@@ -322,6 +323,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     paddingHorizontal: 5,
     borderRadius: 10,
+    elevation: 3,
   },
 
   inputContainer: {
@@ -398,6 +400,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 10,
     marginBottom: 5,
+    elevation: 3,
   },
   buttonText: {
     color: "white",

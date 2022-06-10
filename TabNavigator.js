@@ -6,7 +6,7 @@ import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import ReviewsScreen from "./screens/ReviewsScreen";
 import SearchScreen from "./screens/SearchScreen";
-import HistoryScreen from "./screens/HistoryScreen";
+import NotificationsScreen from "./screens/NotificationsScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -142,8 +142,8 @@ const BottomTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="History"
-        component={HistoryScreen}
+        name="Notifications"
+        component={NotificationsScreen}
         options={{
           headerStyle: {
             backgroundColor: "#267777",
@@ -167,7 +167,7 @@ const BottomTabNavigator = () => {
                   color: focused ? "#267777" : "black",
                 }}
               >
-                History
+                Messages
               </Text>
             </View>
           ),
@@ -213,13 +213,11 @@ export default BottomTabNavigator;
 
 const styles = StyleSheet.create({
   shadow: {
-    shadowColor: "#7F5DF0",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 10,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.5,
-    elevation: 5,
+    elevation: 3,
   },
 });

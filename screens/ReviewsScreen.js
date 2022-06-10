@@ -90,7 +90,6 @@ const ReviewsScreen = () => {
       );
 
       const querySnapshot = await getDocs(q);
-      const items = [];
       querySnapshot.forEach(async (doc) => {
         let reviewData = {
           id: doc.id,

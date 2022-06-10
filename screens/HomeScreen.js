@@ -111,6 +111,17 @@ const HomeScreen = () => {
 
   return (
     <ImageBackground source={background} style={styles.bckground}>
+      <MaterialIcons
+        name="logout"
+        size={40}
+        style={{
+          alignSelf: "flex-end",
+          marginTop: 25,
+          marginRight: 25,
+          color: "#267777",
+        }}
+        onPress={handleSignOut}
+      />
       <Modal transparent visible={modalOpen} animationType="slide">
         <View style={styles.modalContainer}>
           <Text
@@ -124,17 +135,6 @@ const HomeScreen = () => {
           </Text>
         </View>
       </Modal>
-      <MaterialIcons
-        name="logout"
-        size={40}
-        style={{
-          alignSelf: "flex-end",
-          marginTop: 25,
-          marginRight: 25,
-          color: "#267777",
-        }}
-        onPress={handleSignOut}
-      />
     </ImageBackground>
   );
 };

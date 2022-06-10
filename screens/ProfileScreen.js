@@ -240,6 +240,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     paddingHorizontal: 5,
     borderRadius: 10,
+    elevation: 3,
   },
   container: {
     flex: 1,
@@ -255,6 +256,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     marginBottom: 5,
+    elevation: 3,
   },
   buttonContainer: {
     width: "60%",
@@ -293,5 +295,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 10,
     marginBottom: 5,
+    elevation: 3,
   },
 });
