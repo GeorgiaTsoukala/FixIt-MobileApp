@@ -3,7 +3,6 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableOpacity,
   FlatList,
   Keyboard,
   Image,
@@ -15,13 +14,15 @@ import {
   where,
   getDocs,
   getDoc,
+  updateDoc,
+  deleteDoc,
   doc,
   orderBy,
 } from "firebase/firestore";
 import { datab, auth } from "../firebase";
 import { faker } from "@faker-js/faker";
-
-const { width, height } = Dimensions.get("screen");
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 faker.seed(10);
 const DATA = [...Array(30).keys()].map((_, i) => {
@@ -40,6 +41,8 @@ const AVATAR_SIZE = 70;
 const NotificationsScreen = () => {
   const [notifications, setNotifications] = useState([]);
 
+  const navigation = useNavigation();
+
   useEffect(() => {
     loadNotifications();
   }, []);
@@ -49,15 +52,15 @@ const NotificationsScreen = () => {
       Keyboard.dismiss();
       setNotifications([]);
 
-      //find the notifications from pending transactions where the worker is the current user
+      //find the notifications from pending/reviewed transactions where the worker is the current user
       const workerRef = doc(datab, "users/" + auth.currentUser.uid);
       const today = new Date();
 
       const q = query(
         collection(datab, "transactions"),
         where("worker", "==", workerRef),
-        where("status", "==", "pending"),
-        where("date", "<", today),
+        where("status", "in", ["pending", "reviewed"]),
+        where("date", "<=", today),
         orderBy("date", "desc")
       );
 
@@ -65,6 +68,7 @@ const NotificationsScreen = () => {
       querySnapshot.forEach(async (doc) => {
         let notificationData = {
           id: doc.id,
+          status: doc.data().status,
         };
         try {
           const customer = await (await getDoc(doc.data().customer)).data();
@@ -79,7 +83,6 @@ const NotificationsScreen = () => {
       });
     } catch (error) {
       alert(error.message);
-      console.log(error.message);
     }
   };
 
@@ -90,6 +93,54 @@ const NotificationsScreen = () => {
       </Text>
     </View>
   );
+
+  const completedPressed = (item) => async () => {
+    try {
+      let updatedFields = {
+        status: "completed",
+      };
+
+      //set the transaction's status as completed
+      await updateDoc(doc(datab, "transactions", item.id), updatedFields);
+
+      //get workers's name
+      const response = await getDoc(doc(datab, "users", auth.currentUser.uid));
+      let worker = "";
+      if (response?.data()?.firstName && response?.data()?.lastName) {
+        worker = response.data().firstName + " " + response.data().lastName;
+      }
+
+      //send a notification to the customer
+      await fetch("https://exp.host/--/api/v2/push/send", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: item.customer.expoPushToken,
+          sound: "default",
+          title: "FixIt",
+          body: "You can now leave " + worker + " a review!",
+        }),
+      });
+    } catch (error) {
+      alert(error.message);
+    }
+
+    loadNotifications();
+  };
+
+  const reviewedPressed = (id) => async () => {
+    navigation.navigate("TabNavigator", { screen: "Reviews" });
+    try {
+      //delete the transaction
+      await deleteDoc(doc(datab, "transactions", id));
+    } catch (error) {
+      alert(error.message);
+    }
+    loadNotifications();
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -105,12 +156,46 @@ const NotificationsScreen = () => {
                 source={{ uri: item.customer.profileImage }}
                 style={styles.avatar}
               />
-              <View>
-                <Text>
+              <View style={{ alignSelf: "center", width: "60%" }}>
+                <Text
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "bold",
+                  }}
+                >
                   {item.customer
                     ? item?.customer?.firstName + " " + item?.customer?.lastName
                     : "No Data"}
                 </Text>
+                <Text style={{ fontSize: 15, marginTop: 5 }}>
+                  {item.status === "pending"
+                    ? "hired you!"
+                    : "left you a review!"}
+                </Text>
+              </View>
+              <View style={{ alignSelf: "center" }}>
+                {item.status === "pending" && (
+                  <MaterialCommunityIcons
+                    name="clipboard-check-outline"
+                    size={40}
+                    style={{
+                      alignSelf: "flex-end",
+                      color: "green",
+                    }}
+                    onPress={completedPressed(item)}
+                  />
+                )}
+                {item.status === "reviewed" && (
+                  <MaterialCommunityIcons
+                    name="card-account-details-star-outline"
+                    size={40}
+                    style={{
+                      alignSelf: "flex-end",
+                      color: "#ffd700",
+                    }}
+                    onPress={reviewedPressed(item.id)}
+                  />
+                )}
               </View>
             </View>
           );
