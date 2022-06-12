@@ -6,7 +6,6 @@ import {
   FlatList,
   Keyboard,
   Image,
-  Dimensions,
 } from "react-native";
 import {
   collection,
