@@ -20,7 +20,7 @@ import {
 } from "firebase/firestore";
 import { datab, auth } from "../firebase";
 import { faker } from "@faker-js/faker";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 faker.seed(10);
@@ -51,27 +51,25 @@ const NotificationsScreen = () => {
       Keyboard.dismiss();
       setNotifications([]);
 
-      //find the notifications from pending/reviewed transactions where the worker is the current user
-      const workerRef = doc(datab, "users/" + auth.currentUser.uid);
-      const today = new Date();
+      //find the completed transactions where the customer is the current user
+      const customerRef = doc(datab, "users/" + auth.currentUser.uid);
 
-      const q = query(
+      const q1 = query(
         collection(datab, "transactions"),
-        where("worker", "==", workerRef),
-        where("status", "in", ["pending", "reviewed"]),
-        where("date", "<=", today),
+        where("customer", "==", customerRef),
+        where("status", "==", "completed"),
         orderBy("date", "desc")
       );
 
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(async (doc) => {
+      const querySnapshot1 = await getDocs(q1);
+      querySnapshot1.forEach(async (doc) => {
         let notificationData = {
           id: doc.id,
           status: doc.data().status,
         };
         try {
-          const customer = await (await getDoc(doc.data().customer)).data();
-          notificationData = { ...notificationData, customer };
+          const worker = await (await getDoc(doc.data().worker)).data();
+          notificationData = { ...notificationData, worker };
         } catch (err) {
           console.log("Error", err);
         }
@@ -80,8 +78,43 @@ const NotificationsScreen = () => {
           return [...n, notificationData];
         });
       });
+
+      //get user's category
+      const response = await getDoc(doc(datab, "users", auth.currentUser.uid));
+      let category = response?.data()?.category;
+
+      //only for worker accounts
+      if (category != "customer") {
+        //find the pending/reviewed transactions where the worker is the current user
+        const workerRef = doc(datab, "users/" + auth.currentUser.uid);
+
+        const q2 = query(
+          collection(datab, "transactions"),
+          where("worker", "==", workerRef),
+          where("status", "in", ["pending", "reviewed"])
+        );
+
+        const querySnapshot2 = await getDocs(q2);
+        querySnapshot2.forEach(async (doc) => {
+          let notificationData = {
+            id: doc.id,
+            status: doc.data().status,
+          };
+          try {
+            const customer = await (await getDoc(doc.data().customer)).data();
+            notificationData = { ...notificationData, customer };
+          } catch (err) {
+            console.log("Error", err);
+          }
+
+          setNotifications((n) => {
+            return [...n, notificationData];
+          });
+        });
+      }
     } catch (error) {
       alert(error.message);
+      console.log(error.message);
     }
   };
 
@@ -93,10 +126,12 @@ const NotificationsScreen = () => {
     </View>
   );
 
-  const completedPressed = (item) => async () => {
+  //function to mark a job as "done"
+  const pendingPressed = (item) => async () => {
     try {
       let updatedFields = {
         status: "completed",
+        date: new Date(),
       };
 
       //set the transaction's status as completed
@@ -130,6 +165,46 @@ const NotificationsScreen = () => {
     loadNotifications();
   };
 
+  //function to rate/review a worker
+  const completedPressed = (item) => async () => {
+    try {
+      let updatedFields = {
+        status: "reviewed",
+        date: new Date(),
+      };
+
+      //set the transaction's status as reviewed
+      await updateDoc(doc(datab, "transactions", item.id), updatedFields);
+
+      //get customer's name
+      const response = await getDoc(doc(datab, "users", auth.currentUser.uid));
+      let customer = "";
+      if (response?.data()?.firstName && response?.data()?.lastName) {
+        customer = response.data().firstName + " " + response.data().lastName;
+      }
+
+      //send a notification to the worker
+      await fetch("https://exp.host/--/api/v2/push/send", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: item.worker.expoPushToken,
+          sound: "default",
+          title: "FixIt",
+          body: customer + " left you a review!",
+        }),
+      });
+    } catch (error) {
+      alert(error.message);
+    }
+
+    loadNotifications();
+  };
+
+  //function to view a rate/review
   const reviewedPressed = (id) => async () => {
     navigation.navigate("TabNavigator", { screen: "Reviews" });
     try {
@@ -151,10 +226,6 @@ const NotificationsScreen = () => {
         renderItem={({ item, index }) => {
           return (
             <View style={styles.info}>
-              <Image
-                source={{ uri: item.customer.profileImage }}
-                style={styles.avatar}
-              />
               <View style={{ alignSelf: "center", width: "60%" }}>
                 <Text
                   style={{
@@ -162,15 +233,25 @@ const NotificationsScreen = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  {item.customer
-                    ? item?.customer?.firstName + " " + item?.customer?.lastName
-                    : "No Data"}
+                  {item.status === "completed"
+                    ? item?.worker?.firstName + " " + item?.worker?.lastName
+                    : item?.customer?.firstName +
+                      " " +
+                      item?.customer?.lastName}
                 </Text>
-                <Text style={{ fontSize: 15, marginTop: 5 }}>
-                  {item.status === "pending"
-                    ? "hired you!"
-                    : "left you a review!"}
-                </Text>
+                {item.status === "pending" && (
+                  <Text style={{ fontSize: 15, marginTop: 5 }}>hired you!</Text>
+                )}
+                {item.status === "completed" && (
+                  <Text style={{ fontSize: 15, marginTop: 5 }}>
+                    Job completed! You can now leave a review.
+                  </Text>
+                )}
+                {item.status === "reviewed" && (
+                  <Text style={{ fontSize: 15, marginTop: 5 }}>
+                    left you a review!
+                  </Text>
+                )}
               </View>
               <View style={{ alignSelf: "center" }}>
                 {item.status === "pending" && (
@@ -181,6 +262,17 @@ const NotificationsScreen = () => {
                       alignSelf: "flex-end",
                       color: "green",
                     }}
+                    onPress={pendingPressed(item)}
+                  />
+                )}
+                {item.status === "completed" && (
+                  <FontAwesome5
+                    name="star-half-alt" // rate-review
+                    size={35}
+                    style={{
+                      alignSelf: "flex-end",
+                      color: "gold",
+                    }}
                     onPress={completedPressed(item)}
                   />
                 )}
@@ -190,7 +282,7 @@ const NotificationsScreen = () => {
                     size={40}
                     style={{
                       alignSelf: "flex-end",
-                      color: "#ffd700",
+                      color: "indianred",
                     }}
                     onPress={reviewedPressed(item.id)}
                   />

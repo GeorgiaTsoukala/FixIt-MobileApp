@@ -25,6 +25,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { ref, getDownloadURL } from "firebase/storage";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import MapView, { Callout, Marker } from "react-native-maps";
+import { useNavigation } from "@react-navigation/native";
 
 const SearchScreen = () => {
   const [category, setCategory] = useState("");
@@ -40,6 +41,8 @@ const SearchScreen = () => {
   const [phone, setPhone] = useState(0);
   const [businessAddress, setBusinessAddress] = useState("");
   const [expoPushToken, setExpoPushToken] = useState("");
+
+  const navigation = useNavigation();
 
   const mapRef = useRef(null);
   const targetRegion = {
@@ -85,6 +88,11 @@ const SearchScreen = () => {
     } catch (error) {
       alert(error.message);
     }
+  };
+
+  const showReviews = async () => {
+    navigation.navigate("RatingsScreen", { workerId: uid });
+    setModalOpen(false);
   };
 
   const goToTarget = () => {
@@ -175,7 +183,6 @@ const SearchScreen = () => {
               style={{ alignSelf: "flex-end" }}
               onPress={() => (setModalOpen(false), setProfileImage(null))}
             />
-
             {profileImage && (
               <Image
                 source={{ uri: profileImage }}
@@ -209,7 +216,7 @@ const SearchScreen = () => {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.smallButtonContainer}>
                 <TouchableOpacity
-                  //onPress={handleSearch}
+                  onPress={showReviews}
                   style={[styles.button, styles.buttonOutline]}
                 >
                   <Text style={styles.buttonOutlineText}>Reviews</Text>
@@ -325,7 +332,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 3,
   },
-
   inputContainer: {
     width: "80%",
   },
@@ -393,6 +399,13 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
     borderRadius: 20,
     elevation: 20,
+  },
+  reviewsModalContainer: {
+    flex: 1,
+    alignItems: "center",
+    alignSelf: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 30,
   },
   pickerContainer: {
     backgroundColor: "white",

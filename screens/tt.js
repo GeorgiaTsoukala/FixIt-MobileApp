@@ -321,3 +321,5 @@ const styles = StyleSheet.create({
     elevation: 20,
   },
 });
+
+<Image source={{ uri: item.customer.profileImage }} style={styles.avatar} />;
