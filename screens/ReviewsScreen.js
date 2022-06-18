@@ -31,7 +31,7 @@ const ReviewsScreen = () => {
 
       const q = query(
         collection(datab, "reviews"),
-        where("customer", "==", userRef),
+        where("worker", "==", userRef),
         orderBy("date", "desc")
       );
 

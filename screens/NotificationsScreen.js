@@ -5,7 +5,10 @@ import {
   View,
   FlatList,
   Keyboard,
+  TouchableOpacity,
+  TextInput,
   Image,
+  Modal,
 } from "react-native";
 import {
   collection,
@@ -13,14 +16,21 @@ import {
   where,
   getDocs,
   getDoc,
+  addDoc,
   updateDoc,
   deleteDoc,
+  increment,
   doc,
   orderBy,
 } from "firebase/firestore";
 import { datab, auth } from "../firebase";
 import { faker } from "@faker-js/faker";
-import { MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
+import { AirbnbRating } from "react-native-ratings";
+import {
+  MaterialCommunityIcons,
+  FontAwesome5,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 faker.seed(10);
@@ -39,6 +49,12 @@ const AVATAR_SIZE = 70;
 
 const NotificationsScreen = () => {
   const [notifications, setNotifications] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [review, setReview] = useState("");
+  const [stars, setStars] = useState(0);
+  const [workerToken, setWorkerToken] = useState("");
+  const [workerId, setWorkerId] = useState("");
+  const [transactionID, setTransactionID] = useState("");
 
   const navigation = useNavigation();
 
@@ -69,6 +85,8 @@ const NotificationsScreen = () => {
         };
         try {
           const worker = await (await getDoc(doc.data().worker)).data();
+          let wID = doc.data().worker.id;
+          notificationData = { ...notificationData, wID };
           notificationData = { ...notificationData, worker };
         } catch (err) {
           console.log("Error", err);
@@ -166,7 +184,47 @@ const NotificationsScreen = () => {
   };
 
   //function to rate/review a worker
-  const completedPressed = (item) => async () => {
+  const completedPressed = (item) => {
+    setTransactionID(item.id);
+    setWorkerId(item.wID);
+    setWorkerToken(item.worker.expoPushToken);
+    setModalOpen(true);
+  };
+
+  //function to view a rate/review
+  const reviewedPressed = (id) => async () => {
+    navigation.navigate("TabNavigator", { screen: "Reviews" });
+    try {
+      //delete the transaction
+      await deleteDoc(doc(datab, "transactions", id));
+    } catch (error) {
+      alert(error.message);
+    }
+    loadNotifications();
+  };
+
+  const handleSubmit = async () => {
+    try {
+      //update the users database by adding the stars and incrementing the reviews
+      await updateDoc(doc(datab, "users", workerId), {
+        stars: increment(stars),
+        reviews: increment(1),
+      });
+
+      let updatedFields = {
+        customer: doc(datab, "users", auth.currentUser.uid),
+        worker: doc(datab, "users", workerId),
+        date: new Date(),
+        review: review,
+        stars: stars,
+      };
+
+      //add the review to the "reviews" database
+      await addDoc(collection(datab, "reviews"), updatedFields);
+    } catch (error) {
+      alert(error.message);
+    }
+
     try {
       let updatedFields = {
         status: "reviewed",
@@ -174,7 +232,7 @@ const NotificationsScreen = () => {
       };
 
       //set the transaction's status as reviewed
-      await updateDoc(doc(datab, "transactions", item.id), updatedFields);
+      await updateDoc(doc(datab, "transactions", transactionID), updatedFields);
 
       //get customer's name
       const response = await getDoc(doc(datab, "users", auth.currentUser.uid));
@@ -191,7 +249,7 @@ const NotificationsScreen = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          to: item.worker.expoPushToken,
+          to: workerToken,
           sound: "default",
           title: "FixIt",
           body: customer + " left you a review!",
@@ -202,22 +260,53 @@ const NotificationsScreen = () => {
     }
 
     loadNotifications();
-  };
-
-  //function to view a rate/review
-  const reviewedPressed = (id) => async () => {
-    navigation.navigate("TabNavigator", { screen: "Reviews" });
-    try {
-      //delete the transaction
-      await deleteDoc(doc(datab, "transactions", id));
-    } catch (error) {
-      alert(error.message);
-    }
-    loadNotifications();
+    setModalOpen(false);
+    setReview("");
+    setStars(0);
   };
 
   return (
     <View style={{ flex: 1 }}>
+      <Modal
+        transparent
+        visible={modalOpen}
+        animationType="slide"
+        statusBarTranslucent={true}
+      >
+        <View style={styles.modalContainer}>
+          <MaterialIcons
+            name="close"
+            size={24}
+            style={{ alignSelf: "flex-end" }}
+            onPress={() => setModalOpen(false)}
+          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              placeholder="Leave a review"
+              value={review}
+              onChangeText={(text) => setReview(text)}
+              style={styles.input}
+            />
+          </View>
+          <AirbnbRating
+            count={5}
+            selectedColor="#ffcc33"
+            reviewColor="#ffcc33"
+            defaultRating={0}
+            size={40}
+            showRating={false}
+            onFinishRating={(rating) => setStars(rating)}
+          />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              onPress={handleSubmit}
+              style={[styles.button, styles.buttonOutline]}
+            >
+              <Text style={styles.buttonOutlineText}>Submit</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <FlatList
         ListEmptyComponent={<EmptyList />}
         data={notifications}
@@ -267,13 +356,13 @@ const NotificationsScreen = () => {
                 )}
                 {item.status === "completed" && (
                   <FontAwesome5
-                    name="star-half-alt" // rate-review
+                    name="star-half-alt"
                     size={35}
                     style={{
                       alignSelf: "flex-end",
                       color: "gold",
                     }}
-                    onPress={completedPressed(item)}
+                    onPress={() => completedPressed(item)}
                   />
                 )}
                 {item.status === "reviewed" && (
@@ -322,5 +411,60 @@ const styles = StyleSheet.create({
       height: 10,
     },
     elevation: 8,
+  },
+  modalContainer: {
+    flex: 1,
+    marginTop: "65%",
+    marginBottom: "65%",
+    alignItems: "center",
+    width: "80%",
+    alignSelf: "center",
+    backgroundColor: "#c7e2e2",
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    borderRadius: 20,
+    elevation: 20,
+  },
+  inputContainer: {
+    width: "100%",
+  },
+  input: {
+    backgroundColor: "white",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginBottom: 20,
+    marginTop: 20,
+  },
+  buttonContainer: {
+    width: "60%",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 40,
+    marginBottom: 10,
+  },
+  button: {
+    width: "100%",
+    backgroundColor: "#267777",
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  buttonOutline: {
+    backgroundColor: "white",
+    marginTop: 5,
+    borderColor: "#267777",
+    borderWidth: 2,
+  },
+  buttonOutlineText: {
+    color: "#267777",
+    fontWeight: "700",
+    fontSize: 15,
   },
 });

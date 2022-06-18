@@ -121,6 +121,8 @@ const SearchScreen = () => {
           category: doc.data().category,
           profileImage: doc.data().profileImage,
           expoPushToken: doc.data().expoPushToken,
+          stars: doc.data().stars,
+          reviews: doc.data().reviews,
           location: {
             latitude: doc.data().location.Latitude,
             longitude: doc.data().location.Longitude,
@@ -149,7 +151,7 @@ const SearchScreen = () => {
       });
     }
 
-    // load name/phone/address
+    // load name/phone/address/rating
     if (data?.firstName && data?.lastName) {
       setName(data.firstName + " " + data.lastName);
     }
@@ -158,6 +160,9 @@ const SearchScreen = () => {
     }
     if (data?.address) {
       setBusinessAddress(data.address);
+    }
+    if (data?.stars && data?.reviews) {
+      setRating((data.stars / data.reviews).toFixed(1));
     }
 
     //load expoPushToken/uid
@@ -211,7 +216,7 @@ const SearchScreen = () => {
               {phone}
             </Text>
             <Text style={{ alignSelf: "center", marginTop: 10, fontSize: 15 }}>
-              Rating: {}
+              Rating: {rating}
             </Text>
             <View style={{ flexDirection: "row" }}>
               <View style={styles.smallButtonContainer}>
@@ -305,10 +310,7 @@ const SearchScreen = () => {
           {options.map((item, index) => (
             <Marker key={index} coordinate={item.location}>
               <Callout onPress={() => markerPressed(item)}>
-                <Text>
-                  {item.firstName}
-                  {item.lastName}
-                </Text>
+                <Text>{item.firstName + " " + item.lastName}</Text>
               </Callout>
             </Marker>
           ))}
