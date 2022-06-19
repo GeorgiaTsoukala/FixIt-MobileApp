@@ -23,29 +23,18 @@ import {
   doc,
   orderBy,
 } from "firebase/firestore";
-import { datab, auth } from "../firebase";
-import { faker } from "@faker-js/faker";
-import { AirbnbRating } from "react-native-ratings";
 import {
   MaterialCommunityIcons,
   FontAwesome5,
   MaterialIcons,
 } from "@expo/vector-icons";
+import { datab, auth, storage } from "../firebase";
+import { ref, getDownloadURL } from "firebase/storage";
+import { AirbnbRating } from "react-native-ratings";
 import { useNavigation } from "@react-navigation/native";
 
-faker.seed(10);
-const DATA = [...Array(30).keys()].map((_, i) => {
-  return {
-    key: faker.datatype.uuid(),
-    image: faker.image.avatar(),
-    name: faker.name.findName(),
-    jobTitle: faker.name.jobTitle(),
-    email: faker.internet.email(),
-  };
-});
-
 const SPACING = 20;
-const AVATAR_SIZE = 70;
+const AVATAR_SIZE = 50;
 
 const NotificationsScreen = () => {
   const [notifications, setNotifications] = useState([]);
@@ -55,6 +44,9 @@ const NotificationsScreen = () => {
   const [workerToken, setWorkerToken] = useState("");
   const [workerId, setWorkerId] = useState("");
   const [transactionID, setTransactionID] = useState("");
+  const [profileImage, setProfileImage] = useState(
+    Image.resolveAssetSource(require("../assets/profile.png")).uri
+  );
 
   const navigation = useNavigation();
 
@@ -82,6 +74,7 @@ const NotificationsScreen = () => {
         let notificationData = {
           id: doc.id,
           status: doc.data().status,
+          date: doc.data().date.toDate(),
         };
         try {
           const worker = await (await getDoc(doc.data().worker)).data();
@@ -117,6 +110,7 @@ const NotificationsScreen = () => {
           let notificationData = {
             id: doc.id,
             status: doc.data().status,
+            date: doc.data().date.toDate(),
           };
           try {
             const customer = await (await getDoc(doc.data().customer)).data();
@@ -265,6 +259,21 @@ const NotificationsScreen = () => {
     setStars(0);
   };
 
+  const loadImage = (item) => {
+    if (item?.customer?.profileImage) {
+      const refStorage = ref(storage, item.customer.profileImage);
+      getDownloadURL(refStorage).then((res) => {
+        return res;
+      });
+    }
+    if (item?.worker?.profileImage) {
+      const refStorage = ref(storage, item.worker.profileImage);
+      getDownloadURL(refStorage).then((res) => {
+        return res;
+      });
+    }
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <Modal
@@ -315,6 +324,10 @@ const NotificationsScreen = () => {
         renderItem={({ item, index }) => {
           return (
             <View style={styles.info}>
+              <Image
+                source={{ uri: profileImage }} //loadImage(item)
+                style={styles.avatar}
+              />
               <View style={{ alignSelf: "center", width: "60%" }}>
                 <Text
                   style={{
@@ -398,6 +411,7 @@ const styles = StyleSheet.create({
     height: AVATAR_SIZE,
     borderRadius: AVATAR_SIZE,
     marginRight: SPACING,
+    alignSelf: "center",
   },
   info: {
     flexDirection: "row",

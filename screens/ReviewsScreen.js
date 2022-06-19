@@ -21,22 +21,23 @@ const ReviewsScreen = () => {
     loadReviews();
   }, []);
 
+  //load the reviews where the current user is the worker or the customer
   const loadReviews = async () => {
     try {
       Keyboard.dismiss();
       setReviews([]);
 
-      //find the reviews where the current user is the worker or the customer
-      const userRef = doc(datab, "users/" + auth.currentUser.uid);
+      //find the reviews where the current user is the customer
+      const customerRef = doc(datab, "users/" + auth.currentUser.uid);
 
-      const q = query(
+      const q1 = query(
         collection(datab, "reviews"),
-        where("worker", "==", userRef),
+        where("customer", "==", customerRef),
         orderBy("date", "desc")
       );
 
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(async (doc) => {
+      const querySnapshot1 = await getDocs(q1);
+      querySnapshot1.forEach(async (doc) => {
         let reviewData = {
           id: doc.id,
           review: doc.data().review,
@@ -56,6 +57,49 @@ const ReviewsScreen = () => {
           return [...r, reviewData];
         });
       });
+
+      //get user's category
+      const response = await getDoc(doc(datab, "users", auth.currentUser.uid));
+      let category = response?.data()?.category;
+
+      //only for worker accounts
+      if (category != "customer") {
+        //find the reviews where the current user is the worker
+        const workerRef = doc(datab, "users/" + auth.currentUser.uid);
+
+        const q2 = query(
+          collection(datab, "reviews"),
+          where("worker", "==", workerRef)
+        );
+
+        const querySnapshot2 = await getDocs(q2);
+        querySnapshot2.forEach(async (doc) => {
+          let reviewData = {
+            id: doc.id,
+            review: doc.data().review,
+            stars: doc.data().stars,
+            date: doc.data().date.toDate(),
+          };
+          try {
+            const worker = await (await getDoc(doc.data().worker)).data();
+            reviewData = { ...reviewData, worker };
+            const customer = await (await getDoc(doc.data().customer)).data();
+            reviewData = { ...reviewData, customer };
+          } catch (err) {
+            console.log("Error", err);
+          }
+
+          setReviews((r) => {
+            return [...r, reviewData];
+          });
+        });
+
+        let orderedData = []
+          .concat(reviews)
+          .sort((a, b) => new Date(b.date) - new Date(a.date));
+        console.log("-----------------------");
+        console.log(orderedData);
+      }
     } catch (error) {
       console.log("!!" + error.message);
       alert(error.message);
