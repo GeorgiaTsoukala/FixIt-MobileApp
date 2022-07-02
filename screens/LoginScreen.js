@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
   Image,
+  KeyboardAvoidingView,
 } from "react-native";
 import { auth, datab } from "../firebase";
 import {
@@ -78,43 +79,48 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.container} behavior="padding">
-      <View style={styles.boxContainer}>
-        <Image
-          source={require("../assets/FixItLogo.png")}
-          style={{
-            width: 210,
-            height: 210,
-          }}
-        />
-        <View style={styles.inputContainer}>
-          <TextInput
-            placeholder="Email"
-            value={email}
-            onChangeText={(text) => setEmail(text)}
-            style={styles.input}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <View style={styles.container} behavior="padding">
+        <View style={styles.boxContainer}>
+          <Image
+            source={require("../assets/FixItLogo.png")}
+            style={{
+              width: 210,
+              height: 210,
+            }}
           />
-          <TextInput
-            placeholder="Password"
-            value={password}
-            onChangeText={(text) => setPassword(text)}
-            style={styles.input}
-            secureTextEntry
-          />
-        </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={handleLogin} style={styles.button}>
-            <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleRegister}
-            style={[styles.button, styles.buttonOutline]}
-          >
-            <Text style={styles.buttonOutlineText}>Register</Text>
-          </TouchableOpacity>
+          <View style={styles.inputContainer}>
+            <TextInput
+              placeholder="Email"
+              value={email}
+              onChangeText={(text) => setEmail(text)}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Password"
+              value={password}
+              onChangeText={(text) => setPassword(text)}
+              style={styles.input}
+              secureTextEntry
+            />
+          </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity onPress={handleLogin} style={styles.button}>
+              <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleRegister}
+              style={[styles.button, styles.buttonOutline]}
+            >
+              <Text style={styles.buttonOutlineText}>Register</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -130,7 +136,7 @@ const styles = StyleSheet.create({
   boxContainer: {
     justifyContent: "center",
     width: "80%",
-    height: "60%",
+    height: 480,
     borderRadius: 10,
     alignItems: "center",
     backgroundColor: "#efefef",
@@ -149,7 +155,7 @@ const styles = StyleSheet.create({
     width: "60%",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 35,
+    marginTop: 25,
   },
   button: {
     width: "100%",

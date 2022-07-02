@@ -94,16 +94,15 @@ const ReviewsScreen = () => {
           });
         });
 
-        let orderedData = []
-          .concat(reviews)
-          .sort((a, b) => new Date(b.date) - new Date(a.date));
-        console.log("-----------------------");
-        console.log(orderedData);
+        //console.log("-----------------------");
+        //console.log(orderedData);
       }
     } catch (error) {
       console.log("!!" + error.message);
       alert(error.message);
     }
+    //setReviews([]);
+    //setReviews(reviews.sort((a, b) => new Date(b.date) - new Date(a.date)));
   };
 
   const EmptyList = () => (

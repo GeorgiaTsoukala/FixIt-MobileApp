@@ -114,6 +114,7 @@ const NotificationsScreen = () => {
           };
           try {
             const customer = await (await getDoc(doc.data().customer)).data();
+            //let pic = loadImage(customer.profileImage);
             notificationData = { ...notificationData, customer };
           } catch (err) {
             console.log("Error", err);
@@ -128,6 +129,7 @@ const NotificationsScreen = () => {
       alert(error.message);
       console.log(error.message);
     }
+    //console.log(notifications);
   };
 
   const EmptyList = () => (
@@ -259,18 +261,18 @@ const NotificationsScreen = () => {
     setStars(0);
   };
 
-  const loadImage = (item) => {
-    if (item?.customer?.profileImage) {
-      const refStorage = ref(storage, item.customer.profileImage);
+  const loadImage = (image) => {
+    let a = "lol";
+    console.log("loadImage");
+    if (image != "undefined") {
+      a = "kk";
+      const refStorage = ref(storage, image);
       getDownloadURL(refStorage).then((res) => {
+        console.log("!!!" + res);
+        a = res;
         return res;
       });
-    }
-    if (item?.worker?.profileImage) {
-      const refStorage = ref(storage, item.worker.profileImage);
-      getDownloadURL(refStorage).then((res) => {
-        return res;
-      });
+      console.log("###" + a);
     }
   };
 
@@ -324,11 +326,7 @@ const NotificationsScreen = () => {
         renderItem={({ item, index }) => {
           return (
             <View style={styles.info}>
-              <Image
-                source={{ uri: profileImage }} //loadImage(item)
-                style={styles.avatar}
-              />
-              <View style={{ alignSelf: "center", width: "60%" }}>
+              <View style={{ alignSelf: "center", width: "80%" }}>
                 <Text
                   style={{
                     fontSize: 15,
