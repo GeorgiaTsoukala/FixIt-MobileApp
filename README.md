@@ -29,7 +29,7 @@ The application follows a **Backend-as-a-Service (BaaS)** architecture, ensuring
 
 ### Back-end 
 * **Firebase Authentication:** Handles secure user registration and login via email and password.
-* **Cloud Firestore:** A NoSQL cloud database used to store and sync data across three primary collections: `users`, `transactions`, and `reviews`.
+* **Cloud Firestore:** A NoSQL cloud database used to store and sync data across three primary collections: `users`, `transactions` and `reviews`.
 * **Firebase Cloud Storage:** Used for storing and retrieving user profile images and professional media.
 * **Expo Push API (Server-side):** Integrated to send push notifications to users based on database events (e.g., when a new hire request is created).
 
