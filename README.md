@@ -3,6 +3,14 @@
 **FixIt** is a cross-platform mobile application built with **React Native** and **Firebase** designed to bridge the gap between home service professionals (handymen, plumbers, electricians, etc.) and customers.
 The app serves as a real-time ecosystem where users can discover, hire and review reliable local professionals based on their specific needs and location.
 
+<table>
+<tr>
+<td><img src="assets/Notifications.png" width="200"/></td>
+<td><img src="assets/Reviews.png" width="200"/></td>
+<td><img src="assets/Search.png" width="200"/></td>
+</tr>
+</table>
+
 ## Features
 
 ### For Customers
